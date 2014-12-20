@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<repository fileName="agentrepository.xml">
+    <items>
+        <agentRepItems>
+            <agentRepItem description="" classPath="agents.TimeDependentAgentBoulware" agentName=""/>
+        </agentRepItems>
+        <partyRepItems/>
+        <domainRepItem/>
+        <protocolRepItem/>
+        <multiPartyProtocolRepItem/>
+    </items>
+    <filename>agentrepository.xml</filename>
+</repository>

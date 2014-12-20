@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<repository fileName="domainrepository.xml">
+    <items>
+        <agentRepItems/>
+        <partyRepItems/>
+        <domainRepItem>
+            <domainRepItem url="file:etc/templates/partydomain/party_domain.xml">
+                <profile url="file:etc/templates/partydomain/party1_utility.xml"/>
+                <profile url="file:etc/templates/partydomain/party2_utility.xml"/>
+                <profile url="file:etc/templates/partydomain/party3_utility.xml"/>
+                <profile url="file:etc/templates/partydomain/party4_utility.xml"/>
+                <profile url="file:etc/templates/partydomain/party5_utility.xml"/>
+                <profile url="file:etc/templates/partydomain/party6_utility.xml"/>
+                <profile url="file:etc/templates/partydomain/party7_utility.xml"/>
+                <profile url="file:etc/templates/partydomain/party8_utility.xml"/>
+                <profile url="file:etc/templates/partydomain/party9_utility.xml"/>
+            </domainRepItem>            
+        </domainRepItem>
+        <protocolRepItem/>
+        <multiPartyProtocolRepItem/>
+    </items>
+    <filename>domainrepository.xml</filename>
+</repository>
