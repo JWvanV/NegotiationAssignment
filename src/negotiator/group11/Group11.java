@@ -1,4 +1,4 @@
-package negotiator.group123456789;
+package negotiator.group11;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +14,7 @@ import negotiator.utility.UtilitySpace;
 /**
  * This is your negotiation party.
  */
-public class Group123456789 extends AbstractNegotiationParty {
+public class Group11 extends AbstractNegotiationParty {
 
 	/**
 	 * Please keep this constructor. This is called by genius.
@@ -24,7 +24,7 @@ public class Group123456789 extends AbstractNegotiationParty {
 	 * @param timeline Value counting from 0 (start) to 1 (end).
 	 * @param randomSeed If you use any randomization, use this seed for it.
 	 */
-	public Group123456789(UtilitySpace utilitySpace,
+	public Group11(UtilitySpace utilitySpace,
 				  Map<DeadlineType, Object> deadlines,
 				  Timeline timeline,
 				  long randomSeed) {
