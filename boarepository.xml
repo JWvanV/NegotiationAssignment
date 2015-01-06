@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <repository fileName="boarepository.xml">
-	<biddingstrategies>
+	<biddingstrategies/>
 	
-	</biddingstrategies>
-	<acceptanceconditions>
-		
-	</acceptanceconditions>
-	<opponentmodels>
-		
-	</opponentmodels>
-	<omstrategies>
-		
-	</omstrategies>
+	<acceptanceconditions/>
+	
+	<opponentmodels/>
+	
+	<omstrategies/>
 </repository>

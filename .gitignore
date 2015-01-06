@@ -5,6 +5,7 @@
 
 # Package Files #
 *.jar
+!genius-5.2.0.jar #Except for foo.dll
 *.war
 *.ear
 
