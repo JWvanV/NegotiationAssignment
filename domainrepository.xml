@@ -4,17 +4,6 @@
         <agentRepItems/>
         <partyRepItems/>
         <domainRepItem>
-            <domainRepItem url="file:etc/templates/partydomain/party_domain.xml">
-                <profile url="file:etc/templates/partydomain/party1_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party2_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party3_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party4_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party5_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party6_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party7_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party8_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party9_utility.xml"/>
-            </domainRepItem>
             <domainRepItem url="file:etc/templates/carpurchasedomain/car_purchase_domain.xml">
                 <profile url="file:etc/templates/carpurchasedomain/car_purchase_util1.xml"/>
                 <profile url="file:etc/templates/carpurchasedomain/car_purchase_util2.xml"/>
