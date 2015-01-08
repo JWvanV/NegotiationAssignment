@@ -1,8 +1,11 @@
 package negotiator.group11;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import negotiator.Bid;
+import negotiator.BidIterator;
 import negotiator.DeadlineType;
 import negotiator.Timeline;
 import negotiator.actions.Accept;
@@ -15,6 +18,9 @@ import negotiator.utility.UtilitySpace;
  * This is your negotiation party.
  */
 public class Group11 extends AbstractNegotiationParty {
+
+	private ArrayList<Bid> possibleBids;
+	private int round;
 
 	/**
 	 * Please keep this constructor. This is called by genius.
@@ -30,6 +36,17 @@ public class Group11 extends AbstractNegotiationParty {
 				  long randomSeed) {
 		// Make sure that this constructor calls it's parent.
 		super(utilitySpace, deadlines, timeline, randomSeed);
+
+		this.round = 0;
+		
+		// create a list of bids
+				possibleBids = new ArrayList<Bid>();
+				// fill the list with all possible bids
+				BidIterator iterator = new BidIterator(utilitySpace.getDomain());
+				while (iterator.hasNext()) {
+					Bid bid = iterator.next();
+					possibleBids.add(bid);
+				}
 	}
 
 	/**
@@ -41,11 +58,13 @@ public class Group11 extends AbstractNegotiationParty {
 	 */
 	@Override
 	public Action chooseAction(List<Class> validActions) {
-
-		// with 50% chance, counter offer
+		this.round++;
+		int deadline = (int) this.deadlines.get(DeadlineType.ROUND);
+		
+		// When the deadline is not near yet, make an offer
 		// if we are the first party, also offer.
-		if (!validActions.contains(Accept.class) || Math.random() > 0.5) {
-			return new Offer(generateRandomBid());
+		if (!validActions.contains(Accept.class) || (deadline != 0 && (((double) round)/deadline) < 0.9)) {
+			return new Offer(possibleBids.remove(0));
 		}
 		else {
 			return new Accept();
