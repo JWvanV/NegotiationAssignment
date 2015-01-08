@@ -1,6 +1,8 @@
 package negotiator.group11;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +21,8 @@ import negotiator.utility.UtilitySpace;
  */
 public class Group11 extends AbstractNegotiationParty {
 
-	private ArrayList<Bid> possibleBids;
+	private ArrayList<ValuedBid> possibleBids;
+	private ArrayList<Bid> opponentBids;
 	private int round;
 
 	/**
@@ -40,13 +43,26 @@ public class Group11 extends AbstractNegotiationParty {
 		this.round = 0;
 		
 		// create a list of bids
-				possibleBids = new ArrayList<Bid>();
-				// fill the list with all possible bids
-				BidIterator iterator = new BidIterator(utilitySpace.getDomain());
-				while (iterator.hasNext()) {
-					Bid bid = iterator.next();
-					possibleBids.add(bid);
-				}
+		possibleBids = new ArrayList<ValuedBid>();
+		opponentBids = new ArrayList<Bid>();
+		// fill the list with all possible bids
+		BidIterator iterator = new BidIterator(utilitySpace.getDomain());
+		while (iterator.hasNext()) {
+			Bid bid = iterator.next();
+			possibleBids.add(new ValuedBid(bid, this.getUtility(bid)));
+		}
+		// Sort the list of bids, highest utility first
+		Collections.sort(possibleBids, new Comparator<ValuedBid>() {
+		    public int compare(ValuedBid bid1, ValuedBid bid2) {
+		    	if (bid1.getUtility() > bid2.getUtility()) {
+		    		return -1;
+		    	} else if (bid1.getUtility() < bid2.getUtility()) {
+		    		return 1;
+		    	} else {
+		    		return 0;
+		    	}
+		    }
+		});
 	}
 
 	/**
@@ -59,15 +75,33 @@ public class Group11 extends AbstractNegotiationParty {
 	@Override
 	public Action chooseAction(List<Class> validActions) {
 		this.round++;
-		int deadline = (int) this.deadlines.get(DeadlineType.ROUND);
+		
+		// If you are made an offer you can't refuse...
+		if(opponentBids.size() > 0 && this.getUtility(opponentBids.get(opponentBids.size() - 1)) > 1 - getTime()) {
+			return new Accept();
+		}
 		
 		// When the deadline is not near yet, make an offer
 		// if we are the first party, also offer.
-		if (!validActions.contains(Accept.class) || (deadline != 0 && (((double) round)/deadline) < 0.9)) {
-			return new Offer(possibleBids.remove(0));
+		if (!validActions.contains(Accept.class) || getTime() < 0.9) {
+			return new Offer(possibleBids.remove(0).getBid());
 		}
 		else {
 			return new Accept();
+		}
+	}
+	
+	/**
+	 * 
+	 * @return the partial of rounds done, or 0 when there is no deadline
+	 */
+	private double getTime() {
+		int deadline = (int) this.deadlines.get(DeadlineType.ROUND);
+		
+		if(deadline != 0) {
+			return (double) this.round/deadline;
+		} else {
+			return 0;
 		}
 	}
 
@@ -82,6 +116,9 @@ public class Group11 extends AbstractNegotiationParty {
 	@Override
 	public void receiveMessage(Object sender, Action action) {
 		// Here you can listen to other parties' messages		
+		if(action instanceof Offer) {
+			opponentBids.add(((Offer) action).getBid());
+		}
 	}
 
 }
