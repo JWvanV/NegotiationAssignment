@@ -7,12 +7,17 @@ import java.util.List;
 import java.util.Map;
 
 import negotiator.Bid;
+import negotiator.BidHistory;
 import negotiator.BidIterator;
 import negotiator.DeadlineType;
 import negotiator.Timeline;
 import negotiator.actions.Accept;
 import negotiator.actions.Action;
+import negotiator.actions.EndNegotiation;
 import negotiator.actions.Offer;
+import negotiator.actions.Reject;
+import negotiator.bidding.BidDetails;
+import negotiator.boaframework.SortedOutcomeSpace;
 import negotiator.parties.AbstractNegotiationParty;
 import negotiator.utility.UtilitySpace;
 
@@ -21,9 +26,10 @@ import negotiator.utility.UtilitySpace;
  */
 public class Group11 extends AbstractNegotiationParty {
 
-	private ArrayList<ValuedBid> possibleBids;
-	private ArrayList<Bid> opponentBids;
+	private SortedOutcomeSpace possibleBids;
+	private BidHistory opponentBids;
 	private int round;
+	private double lastUtility;
 
 	/**
 	 * Please keep this constructor. This is called by genius.
@@ -41,28 +47,11 @@ public class Group11 extends AbstractNegotiationParty {
 		super(utilitySpace, deadlines, timeline, randomSeed);
 
 		this.round = 0;
+		this.lastUtility = 1;
 		
 		// create a list of bids
-		possibleBids = new ArrayList<ValuedBid>();
-		opponentBids = new ArrayList<Bid>();
-		// fill the list with all possible bids
-		BidIterator iterator = new BidIterator(utilitySpace.getDomain());
-		while (iterator.hasNext()) {
-			Bid bid = iterator.next();
-			possibleBids.add(new ValuedBid(bid, this.getUtility(bid)));
-		}
-		// Sort the list of bids, highest utility first
-		Collections.sort(possibleBids, new Comparator<ValuedBid>() {
-		    public int compare(ValuedBid bid1, ValuedBid bid2) {
-		    	if (bid1.getUtility() > bid2.getUtility()) {
-		    		return -1;
-		    	} else if (bid1.getUtility() < bid2.getUtility()) {
-		    		return 1;
-		    	} else {
-		    		return 0;
-		    	}
-		    }
-		});
+		possibleBids = new SortedOutcomeSpace(utilitySpace);
+		opponentBids = new BidHistory();
 	}
 
 	/**
@@ -75,20 +64,57 @@ public class Group11 extends AbstractNegotiationParty {
 	@Override
 	public Action chooseAction(List<Class> validActions) {
 		this.round++;
-		
-		// If you are made an offer you can't refuse...
-		if(opponentBids.size() > 0 && this.getUtility(opponentBids.get(opponentBids.size() - 1)) > 1 - getTime()) {
-			return new Accept();
+		// if we are the first party, make the best offer.
+		if (!validActions.contains(Accept.class)) {
+			return new Offer(possibleBids.getMaxBidPossible().getBid());
 		}
 		
-		// When the deadline is not near yet, make an offer
-		// if we are the first party, also offer.
-		if (!validActions.contains(Accept.class) || getTime() < 0.9) {
-			return new Offer(possibleBids.remove(0).getBid());
+		BidDetails lastBid = opponentBids.getLastBidDetails();
+		BidDetails bestBid = opponentBids.getBestBidDetails();
+		
+		/*// Afknaps
+		if (lastBid.getMyUndiscountedUtil() < 0.3 && getTime() > 0.5) {
+			return new EndNegotiation();
+		}*/
+		
+		// If you were made a decent offer once, reoffer it, unless it is the last bid, then accept...
+		if(bestBid != null && bestBid.getMyUndiscountedUtil() > 1 - getTime()) {
+			if(Math.abs(bestBid.getMyUndiscountedUtil() - lastBid.getMyUndiscountedUtil()) < 0.05) {
+				return new Accept();
+			} else {
+				return new Offer(bestBid.getBid());
+			}
 		}
-		else {
-			return new Accept();
+
+		// Stupid bidding, just go lower to see if it works
+		if (getTime() < 0.5) {
+			BidDetails bid = possibleBids.getBidNearUtility(0.99 * lastUtility);
+			lastUtility = bid.getMyUndiscountedUtil();
+			return new Offer(bid.getBid());
 		}
+		if (getTime() < 0.7) {
+			BidDetails bid = possibleBids.getBidNearUtility(0.95 * lastUtility);
+			lastUtility = bid.getMyUndiscountedUtil();
+			return new Offer(bid.getBid());
+		}
+		if (getTime() < 0.8) {
+			BidDetails bid = possibleBids.getBidNearUtility(0.9 * lastUtility);
+			lastUtility = bid.getMyUndiscountedUtil();
+			return new Offer(bid.getBid());
+		}
+		if (getTime() < 0.9) {
+			BidDetails bid = possibleBids.getBidNearUtility(0.8 * lastUtility);
+			lastUtility = bid.getMyUndiscountedUtil();
+			return new Offer(bid.getBid());
+		}
+		if (getTime() < 0.95) {
+			BidDetails bid = possibleBids.getBidNearUtility(0.7 * lastUtility);
+			lastUtility = bid.getMyUndiscountedUtil();
+			return new Offer(bid.getBid());
+		}
+
+		// Eventually, accept
+		return new Accept();		
 	}
 	
 	/**
@@ -117,7 +143,8 @@ public class Group11 extends AbstractNegotiationParty {
 	public void receiveMessage(Object sender, Action action) {
 		// Here you can listen to other parties' messages		
 		if(action instanceof Offer) {
-			opponentBids.add(((Offer) action).getBid());
+			Bid bid = ((Offer) action).getBid();
+			opponentBids.add(new BidDetails(bid, this.getUtility(bid)));
 		}
 	}
 
