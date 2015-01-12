@@ -1,13 +1,23 @@
 package negotiator.group11;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import negotiator.Bid;
+import negotiator.BidHistory;
+import negotiator.BidIterator;
 import negotiator.DeadlineType;
 import negotiator.Timeline;
 import negotiator.actions.Accept;
 import negotiator.actions.Action;
+import negotiator.actions.EndNegotiation;
 import negotiator.actions.Offer;
+import negotiator.actions.Reject;
+import negotiator.bidding.BidDetails;
+import negotiator.boaframework.SortedOutcomeSpace;
 import negotiator.parties.AbstractNegotiationParty;
 import negotiator.utility.UtilitySpace;
 
@@ -15,6 +25,11 @@ import negotiator.utility.UtilitySpace;
  * This is your negotiation party.
  */
 public class Group11 extends AbstractNegotiationParty {
+
+	private SortedOutcomeSpace possibleBids;
+	private BidHistory opponentBids;
+	private int round;
+	private double lastUtility;
 
 	/**
 	 * Please keep this constructor. This is called by genius.
@@ -30,10 +45,13 @@ public class Group11 extends AbstractNegotiationParty {
 				  long randomSeed) {
 		//TODO check if it might be fun if we give other data to the parent i.e. randomseed+1
 		super(utilitySpace, deadlines, timeline, randomSeed);
+
+		this.round = 0;
+		this.lastUtility = 1;
 		
-		
-		
-		
+		// create a list of bids
+		possibleBids = new SortedOutcomeSpace(utilitySpace);
+		opponentBids = new BidHistory();
 	}
 
 	/**
@@ -45,14 +63,71 @@ public class Group11 extends AbstractNegotiationParty {
 	 */
 	@Override
 	public Action chooseAction(List<Class> validActions) {
-
-		// with 50% chance, counter offer
-		// if we are the first party, also offer.
-		if (!validActions.contains(Accept.class) || Math.random() > 0.5) {
-			return new Offer(generateRandomBid());
+		this.round++;
+		// if we are the first party, make the best offer.
+		if (!validActions.contains(Accept.class)) {
+			return new Offer(possibleBids.getMaxBidPossible().getBid());
 		}
-		else {
-			return new Accept();
+		
+		BidDetails lastBid = opponentBids.getLastBidDetails();
+		BidDetails bestBid = opponentBids.getBestBidDetails();
+		
+		/*// Afknaps
+		if (lastBid.getMyUndiscountedUtil() < 0.3 && getTime() > 0.5) {
+			return new EndNegotiation();
+		}*/
+		
+		// If you were made a decent offer once, reoffer it, unless it is the last bid, then accept...
+		if(bestBid != null && bestBid.getMyUndiscountedUtil() > 1 - getTime()) {
+			if(Math.abs(bestBid.getMyUndiscountedUtil() - lastBid.getMyUndiscountedUtil()) < 0.05) {
+				return new Accept();
+			} else {
+				return new Offer(bestBid.getBid());
+			}
+		}
+
+		// Stupid bidding, just go lower to see if it works
+		if (getTime() < 0.5) {
+			BidDetails bid = possibleBids.getBidNearUtility(0.99 * lastUtility);
+			lastUtility = bid.getMyUndiscountedUtil();
+			return new Offer(bid.getBid());
+		}
+		if (getTime() < 0.7) {
+			BidDetails bid = possibleBids.getBidNearUtility(0.95 * lastUtility);
+			lastUtility = bid.getMyUndiscountedUtil();
+			return new Offer(bid.getBid());
+		}
+		if (getTime() < 0.8) {
+			BidDetails bid = possibleBids.getBidNearUtility(0.9 * lastUtility);
+			lastUtility = bid.getMyUndiscountedUtil();
+			return new Offer(bid.getBid());
+		}
+		if (getTime() < 0.9) {
+			BidDetails bid = possibleBids.getBidNearUtility(0.8 * lastUtility);
+			lastUtility = bid.getMyUndiscountedUtil();
+			return new Offer(bid.getBid());
+		}
+		if (getTime() < 0.95) {
+			BidDetails bid = possibleBids.getBidNearUtility(0.7 * lastUtility);
+			lastUtility = bid.getMyUndiscountedUtil();
+			return new Offer(bid.getBid());
+		}
+
+		// Eventually, accept
+		return new Accept();		
+	}
+	
+	/**
+	 * 
+	 * @return the partial of rounds done, or 0 when there is no deadline
+	 */
+	private double getTime() {
+		int deadline = (int) this.deadlines.get(DeadlineType.ROUND);
+		
+		if(deadline != 0) {
+			return (double) this.round/deadline;
+		} else {
+			return 0;
 		}
 	}
 
@@ -67,6 +142,10 @@ public class Group11 extends AbstractNegotiationParty {
 	@Override
 	public void receiveMessage(Object sender, Action action) {
 		// Here you can listen to other parties' messages		
+		if(action instanceof Offer) {
+			Bid bid = ((Offer) action).getBid();
+			opponentBids.add(new BidDetails(bid, this.getUtility(bid)));
+		}
 	}
 
 }
