@@ -28,8 +28,12 @@ public class Group11 extends AbstractNegotiationParty {
 				  Map<DeadlineType, Object> deadlines,
 				  Timeline timeline,
 				  long randomSeed) {
-		// Make sure that this constructor calls it's parent.
+		//TODO check if it might be fun if we give other data to the parent i.e. randomseed+1
 		super(utilitySpace, deadlines, timeline, randomSeed);
+		
+		
+		
+		
 	}
 
 	/**
