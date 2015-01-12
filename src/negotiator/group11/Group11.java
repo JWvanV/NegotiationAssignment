@@ -1,5 +1,7 @@
 package negotiator.group11;
 
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,10 +11,12 @@ import negotiator.DeadlineType;
 import negotiator.Timeline;
 import negotiator.actions.Accept;
 import negotiator.actions.Action;
-import negotiator.actions.EndNegotiation;
 import negotiator.actions.Offer;
 import negotiator.bidding.BidDetails;
 import negotiator.boaframework.SortedOutcomeSpace;
+import negotiator.issue.Issue;
+import negotiator.issue.Objective;
+import negotiator.issue.Value;
 import negotiator.parties.AbstractNegotiationParty;
 import negotiator.utility.UtilitySpace;
 
@@ -22,9 +26,11 @@ import negotiator.utility.UtilitySpace;
 public class Group11 extends AbstractNegotiationParty {
 
 	private SortedOutcomeSpace possibleBids;
-	private BidHistory opponentBids;
+	private HashMap<Object, Opponent> opponents;
+	private BidHistory allBids;
 	private int round;
 	private double lastUtility;
+	private double reservationUtility = 0.7;
 
 	/**
 	 * Please keep this constructor. This is called by genius.
@@ -50,7 +56,13 @@ public class Group11 extends AbstractNegotiationParty {
 
 		// create a list of bids
 		possibleBids = new SortedOutcomeSpace(utilitySpace);
-		opponentBids = new BidHistory();
+		allBids = new BidHistory();
+		opponents = new HashMap<Object, Opponent>();
+	}
+
+	private Offer bid(Bid bid) {
+		allBids.add(new BidDetails(bid, getUtility(bid)));
+		return new Offer(bid);
 	}
 
 	/**
@@ -64,24 +76,19 @@ public class Group11 extends AbstractNegotiationParty {
 	 */
 	@Override
 	public Action chooseAction(List<Class> validActions) {
-		System.out.println("chooseAction:");
-		for(Class c : validActions){
-			System.out.println("- " + c.getCanonicalName());
-		}
-		
 		this.round++;
 		// if we are the first party, make the best offer.
 		if (!validActions.contains(Accept.class)) {
-			return new Offer(possibleBids.getMaxBidPossible().getBid());
+			return bid(possibleBids.getMaxBidPossible().getBid());
 		}
 
-		BidDetails lastBid = opponentBids.getLastBidDetails();
-		BidDetails bestBid = opponentBids.getBestBidDetails();
+		BidDetails lastBid = allBids.getLastBidDetails();
+		BidDetails bestBid = allBids.getBestBidDetails();
 
 		// Afknaps
-		if (lastBid.getMyUndiscountedUtil() < 0.3 && getTime() > 0.5) {
-			return new EndNegotiation();
-		}
+		// if (lastBid.getMyUndiscountedUtil() < 0.3 && getTime() > 0.5) {
+		// return new EndNegotiation();
+		// }
 
 		// If you were made a decent offer once, reoffer it, unless it is the
 		// last bid, then accept...
@@ -90,7 +97,7 @@ public class Group11 extends AbstractNegotiationParty {
 					- lastBid.getMyUndiscountedUtil()) < 0.05) {
 				return new Accept();
 			} else {
-				return new Offer(bestBid.getBid());
+				return bid(bestBid.getBid());
 			}
 		}
 
@@ -110,10 +117,26 @@ public class Group11 extends AbstractNegotiationParty {
 			return new Accept();
 	}
 
+	private HashMap<Integer, Boolean> getBidDifference(Bid bid1, Bid bid2) {
+		HashMap<Integer, Boolean> res = new HashMap<Integer, Boolean>();
+		for (Issue s : bid1.getIssues()) {
+			try {
+				Value value1 = bid1.getValue(s.getNumber());
+				Value value2 = bid2.getValue(s.getNumber());
+				res.put(s.getNumber(), value1 == value2);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+
+		return res;
+	}
+
 	private Offer getOfferFromPreviousUtil(double prevUtil) {
 		BidDetails bid = possibleBids.getBidNearUtility(prevUtil * lastUtility);
 		lastUtility = bid.getMyUndiscountedUtil();
-		return new Offer(bid.getBid());
+		return bid(bid.getBid());
 	}
 
 	/**
@@ -143,9 +166,34 @@ public class Group11 extends AbstractNegotiationParty {
 	@Override
 	public void receiveMessage(Object sender, Action action) {
 		// Here you can listen to other parties' messages
+
+		// TODO also record what the Action was that this action is a response
+		// to.
+
+		Opponent opponent = opponents.get(sender);
+		if (opponent == null) {
+			opponent = new Opponent();
+			opponents.put(sender, opponent);
+		}
+
+		Bid prevousBid = allBids.getLastBid();
+
+		// Update opponent specific history
 		if (action instanceof Offer) {
-			Bid bid = ((Offer) action).getBid();
-			opponentBids.add(new BidDetails(bid, this.getUtility(bid)));
+			// Update global history
+			Bid bid = Action.getBidFromAction(action);
+			BidDetails details = new BidDetails(bid, getUtility(bid));
+			allBids.add(details);
+
+			opponent.addOffer(details);
+		} else if (action instanceof Accept) {
+			// TODO check if the accept is actually from the lastBid
+			BidDetails details = allBids.getLastBidDetails();
+
+			opponent.addAccept(details);
+		} else {
+			System.out.println("WARNING :: UNKNOWN ACTION :: "
+					+ action.getClass().getCanonicalName());
 		}
 	}
 
