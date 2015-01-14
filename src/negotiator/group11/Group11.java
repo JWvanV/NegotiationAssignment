@@ -117,22 +117,6 @@ public class Group11 extends AbstractNegotiationParty {
 			return new Accept();
 	}
 
-	private HashMap<Integer, Boolean> getBidDifference(Bid bid1, Bid bid2) {
-		HashMap<Integer, Boolean> res = new HashMap<Integer, Boolean>();
-		for (Issue s : bid1.getIssues()) {
-			try {
-				Value value1 = bid1.getValue(s.getNumber());
-				Value value2 = bid2.getValue(s.getNumber());
-				res.put(s.getNumber(), value1 == value2);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-		}
-
-		return res;
-	}
-
 	private Offer getOfferFromPreviousUtil(double prevUtil) {
 		BidDetails bid = possibleBids.getBidNearUtility(prevUtil * lastUtility);
 		lastUtility = bid.getMyUndiscountedUtil();
@@ -185,16 +169,20 @@ public class Group11 extends AbstractNegotiationParty {
 			BidDetails details = new BidDetails(bid, getUtility(bid));
 			allBids.add(details);
 
-			opponent.addOffer(details);
+			opponent.addOffer(prevousBid, bid);
 		} else if (action instanceof Accept) {
 			// TODO check if the accept is actually from the lastBid
 			BidDetails details = allBids.getLastBidDetails();
 
-			opponent.addAccept(details);
+			opponent.addAccept(prevousBid);
 		} else {
 			System.out.println("WARNING :: UNKNOWN ACTION :: "
 					+ action.getClass().getCanonicalName());
 		}
+	}
+	
+	private void sortOutcomeSpaceOnNashProduct(){
+		possibleBids.
 	}
 
 }
