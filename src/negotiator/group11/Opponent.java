@@ -81,7 +81,11 @@ public class Opponent {
 					// divide by totalAmountOfMeasurementsPerIssue, so it
 					// becomes < 1, and will result in only positive weights
 					ValueDiscrete vd = lIssueDiscrete.getValue(j);
-					int valueCount = issueValueCounter.get(vd);
+					System.out.println("- Value: "
+							+ ((vd == null) ? "null" : vd.getValue()));
+					Integer valueCountSomething = issueValueCounter.get(vd);
+					int valueCount = valueCountSomething == null ? 0
+							: valueCountSomething;
 					issueValueCounts[j] = ((double) valueCount)
 							/ totalAmountOfMeasurementsPerIssue;
 
@@ -124,6 +128,7 @@ public class Opponent {
 			double weight = e.getValue() + extraFreeVariancePointsPerIssue;
 			Issue i = e.getKey();
 			u.setWeight(i, weight);
+			// TODO Stop this from throwing a nullpointer
 			u.lock(i);
 		}
 
