@@ -5,23 +5,21 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import negotiator.Bid;
-import negotiator.BidHistory;
 import negotiator.Domain;
-import negotiator.bidding.BidDetails;
 import negotiator.boaframework.SortedOutcomeSpace;
 import negotiator.issue.Issue;
 import negotiator.issue.IssueDiscrete;
-import negotiator.issue.IssueInteger;
-import negotiator.issue.IssueReal;
 import negotiator.issue.Objective;
 import negotiator.issue.Value;
 import negotiator.issue.ValueDiscrete;
-import negotiator.issue.ValueInteger;
-import negotiator.issue.ValueReal;
 import negotiator.utility.Evaluator;
 import negotiator.utility.EvaluatorDiscrete;
+import negotiator.utility.EvaluatorInteger;
+import negotiator.utility.EvaluatorObjective;
+import negotiator.utility.EvaluatorReal;
 import negotiator.utility.UtilitySpace;
 
+@Deprecated
 public class Opponent {
 	private OpponentBidHistory allBids;
 	private OpponentBidHistory acceptedBids;
@@ -64,6 +62,30 @@ public class Opponent {
 
 	public UtilitySpace calculateUtilitySpace(Domain d) {
 		UtilitySpace u = new UtilitySpace(d);
+		ArrayList<Objective> objectives = d.getObjectives();
+		for (Objective obj : objectives) {
+			Evaluator eval = null;
+			if (obj.isObjective()) {
+				eval = new EvaluatorObjective();
+			} else {
+				switch (((Issue) obj).getType()) {
+				case DISCRETE:
+					eval = new EvaluatorDiscrete();
+					break;
+				case INTEGER:
+					eval = new EvaluatorInteger();
+					break;
+				case REAL:
+					eval = new EvaluatorReal();
+					break;
+				default:
+					break;
+				}
+			}
+			if (eval != null) {
+				u.addEvaluator(obj, eval);
+			}
+		}
 
 		HashMap<Issue, Double> issueVariances = new HashMap<Issue, Double>();
 		int totalAmountOfMeasurementsPerIssue = allBids.getSize();
@@ -93,6 +115,10 @@ public class Opponent {
 					try {
 						EvaluatorDiscrete ed = (EvaluatorDiscrete) u
 								.getEvaluator(i.getNumber());
+						if (ed == null) {
+							ed = new EvaluatorDiscrete();
+							u.addEvaluator(i, ed);
+						}
 						ed.setEvaluationDouble(vd, valueCount);
 					} catch (Exception e1) {
 						System.out.println("setEvaluationDouble EXCEPTION: "
@@ -111,8 +137,7 @@ public class Opponent {
 			}
 
 			if (issueValueCounts != null) {
-				Statistics s = new Statistics(issueValueCounts);
-				issueVariances.put(i, s.getVariance());
+				issueVariances.put(i, Statistics.getVariance(issueValueCounts));
 			}
 		}
 
@@ -134,9 +159,9 @@ public class Opponent {
 			} else {
 				ev.setWeight(weight);
 			}
-//			u.setWeight(i, weight);
+			// u.setWeight(i, weight);
 			// TODO Stop this from throwing a nullpointer
-//			u.lock(i);
+			// u.lock(i);
 		}
 		u.normalizeChildren(d.getIssue(0).getParent());
 

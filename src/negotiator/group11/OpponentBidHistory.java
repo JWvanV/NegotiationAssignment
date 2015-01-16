@@ -19,7 +19,7 @@ public class OpponentBidHistory {
 	public void add(Bid previousBid, Bid newBid) {
 		bids.add(new BidSequence(previousBid, newBid));
 	}
-	
+
 	public int getSize() {
 		return bids.size();
 	}
@@ -40,17 +40,18 @@ public class OpponentBidHistory {
 						bsCurrent.current);
 
 				if (currentDistance == previousDistance) {
-					int currentCount = counts
-							.get(BidModificationStrategy.UNKNOWN);
+					Integer c = counts.get(BidModificationStrategy.UNKNOWN);
+					int currentCount = c == null ? 0 : c;
 					counts.put(BidModificationStrategy.UNKNOWN, currentCount++);
 				} else if (currentDistance < previousDistance) {
-					int currentCount = counts
+					Integer c = counts
 							.get(BidModificationStrategy.MODIFY_PREVIOUS);
+					int currentCount = c == null ? 0 : c;
 					counts.put(BidModificationStrategy.MODIFY_PREVIOUS,
 							currentCount++);
 				} else {
-					int currentCount = counts
-							.get(BidModificationStrategy.MODIFY_SELF);
+					Integer c = counts.get(BidModificationStrategy.MODIFY_SELF);
+					int currentCount = c == null ? 0 : c;
 					counts.put(BidModificationStrategy.MODIFY_SELF,
 							currentCount++);
 				}

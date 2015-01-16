@@ -1,13 +1,13 @@
 package negotiator.group11;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import negotiator.Bid;
 import negotiator.BidHistory;
@@ -16,9 +16,13 @@ import negotiator.Domain;
 import negotiator.Timeline;
 import negotiator.actions.Accept;
 import negotiator.actions.Action;
+import negotiator.actions.EndNegotiation;
+import negotiator.actions.Inform;
 import negotiator.actions.Offer;
 import negotiator.bidding.BidDetails;
 import negotiator.boaframework.SortedOutcomeSpace;
+import negotiator.group11.OpponentUtilityModel.InvalidBidException;
+import negotiator.group11.OpponentUtilityModel.InvalidDomainException;
 import negotiator.parties.AbstractNegotiationParty;
 import negotiator.utility.UtilitySpace;
 
@@ -29,7 +33,7 @@ public class Group11 extends AbstractNegotiationParty {
 
 	private SortedOutcomeSpace possibleBids;
 	private ArrayList<BidDetailsWithNash> nashBids;
-	private HashMap<Object, Opponent> opponents;
+	private HashMap<Object, OpponentUtilityModel> opponents;
 	private BidHistory allBids;
 	private int round;
 	private double lastUtility;
@@ -61,7 +65,9 @@ public class Group11 extends AbstractNegotiationParty {
 		// create a list of bids
 		possibleBids = new SortedOutcomeSpace(utilitySpace);
 		allBids = new BidHistory();
-		opponents = new HashMap<Object, Opponent>();
+		opponents = new HashMap<Object, OpponentUtilityModel>();
+
+		utilitySpace.setReservationValue(reservationUtility);
 	}
 
 	private Offer bid(Bid bid) {
@@ -81,44 +87,74 @@ public class Group11 extends AbstractNegotiationParty {
 	@Override
 	public Action chooseAction(List<Class> validActions) {
 		this.round++;
+		double currentTime = getTime();
 		// if we are the first party, make the best offer.
 		if (!validActions.contains(Accept.class)) {
 			return bid(possibleBids.getMaxBidPossible().getBid());
 		}
 
-		if (getTime() > 0.75) {
-			// TODO make this smarter
-			reservationUtility = startReservationUtility - (getTime() - 0.75);
+		// Give in to our reservation value in the endgame;
+		double timeTostartGiveInReservationValue = 0.85;
+		if (currentTime > timeTostartGiveInReservationValue) {
+			double giveInProgress = (currentTime - timeTostartGiveInReservationValue)
+					/ (1 - timeTostartGiveInReservationValue);
+			reservationUtility = startReservationUtility
+					- (0.4 * giveInProgress);
+			utilitySpace.setReservationValue(reservationUtility);
 		}
-
-		// TODO maybe update reservationvalue, depening on the current time;
 
 		BidDetails lastBid = allBids.getLastBidDetails();
 		if (lastBid.getMyUndiscountedUtil() > reservationUtility)
 			return new Accept();
-		else {
+		else if (currentTime > 0.95) {
+			return new Accept();
+		} else {
 			if (weTrustOurOpponentModel()) {
-				long time = Calendar.getInstance().getTimeInMillis();
 				sortOutcomeSpaceOnNashProduct();
-				System.out.println("Creating Nash Space Took "
-						+ (Calendar.getInstance().getTimeInMillis() - time)
-						+ "ms");
 
-				return getActionForTactic(Tactics.BESTNASH);
+				// TODO do something with the aprox opponent tactics
+				int unknownCounter = 0;
+				int modifyPreviousCounter = 0;
+				int modifySelfCounter = 0;
+				for (Entry<Object, OpponentUtilityModel> e : opponents
+						.entrySet()) {
+					switch (e.getValue().getMostLikelyStrategy()) {
+					case UNKNOWN:
+						unknownCounter++;
+						break;
+					case MODIFY_PREVIOUS:
+						modifyPreviousCounter++;
+						break;
+					case MODIFY_SELF:
+						modifySelfCounter++;
+						break;
+					}
+				}
+
+				// TODO maybe do other strategies
+				if (unknownCounter >= modifyPreviousCounter
+						&& unknownCounter >= modifySelfCounter)
+					return getActionForTactic(Tactics.BESTNASH);
+				else if (modifyPreviousCounter >= modifySelfCounter)
+					return getActionForTactic(Tactics.NOSTALGIAN);
+				else
+					return getActionForTactic(Tactics.BESTNASH);
 			} else {
 				if (thereWillNeverBeATrustedOpponentModel()) {
-					if (getTime() < 0.5) {
+					if (currentTime < 0.25) {
+						return getActionForTactic(Tactics.NOSTALGIAN);
+					} else if (currentTime < 0.5) {
 						return getActionForTactic(Tactics.HARDTOGET);
 					} else {
 						return getActionForTactic(Tactics.GIVEIN);
 					}
 				} else {
-					return getActionForTactic(Tactics.HARDTOGET);
+					return getActionForTactic(Tactics.RANDOM);
 				}
 			}
 
 			// Afknaps
-			// if (lastBid.getMyUndiscountedUtil() < 0.3 && getTime() > 0.5) {
+			// if (lastBid.getMyUndiscountedUtil() < 0.3 && getTime() > 0.8) {
 			// return new EndNegotiation();
 			// }
 
@@ -137,39 +173,46 @@ public class Group11 extends AbstractNegotiationParty {
 
 			// return getActionForTactic(Tactics.GIVEIN);
 		}
-
 	}
 
+	private static final int numberOfRoundForOpponentModel = 20;
+
 	private boolean thereWillNeverBeATrustedOpponentModel() {
-		return (round / getTime()) < 20;
+		return (round / getTime()) < numberOfRoundForOpponentModel;
 	}
 
 	private boolean weTrustOurOpponentModel() {
-		// TODO fix this
-		return /* getTime() > 0.5 && */round > 10;
+		return round > numberOfRoundForOpponentModel;
 	}
 
 	private enum Tactics {
-		BESTNASH, NOSTALGIAN, ASOCIAL, HARDTOGET, EDGEPUSHER, GIVEIN, THEFINGER
+		RANDOM, BESTNASH, NOSTALGIAN, ASOCIAL, HARDTOGET, EDGEPUSHER, GIVEIN, THEFINGER
 	}
 
 	private Action getActionForTactic(Tactics t) {
 		switch (t) {
+		case RANDOM:
+			return bid(possibleBids
+					.getAllOutcomes()
+					.get(possibleBids.getIndexOfBidNearUtility(new Random()
+							.nextDouble())).getBid());
 		case BESTNASH:
-			// TODO check if best is first or last
+			// In the assumption that our opponent does not do this as well,
+			// else this will keep on giving the same bid
 			return bid(nashBids.get(nashBids.size() - 1).getBid());
 		case NOSTALGIAN:
 			return bid(allBids.getBestBidDetails().getBid());
 		case ASOCIAL:
 			return bid(possibleBids.getMaxBidPossible().getBid());
 		case HARDTOGET:
-			// TODO implement
-			break;
+			if (getTime() < 0.8)
+				return getOfferFromPreviousUtil(0.99);
+			else
+				return new Accept();
 		case EDGEPUSHER:
 			// TODO implement
 			break;
 		case GIVEIN:
-			// Stupid bidding, just go lower to see if it works
 			if (getTime() < 0.5)
 				return getOfferFromPreviousUtil(0.99);
 			else if (getTime() < 0.7)
@@ -181,11 +224,9 @@ public class Group11 extends AbstractNegotiationParty {
 			else if (getTime() < 0.95)
 				return getOfferFromPreviousUtil(0.7);
 			else
-				// Eventually, accept
 				return new Accept();
 		case THEFINGER:
-			// TODO implement
-			break;
+			return new EndNegotiation();
 		default:
 			break;
 		}
@@ -226,43 +267,55 @@ public class Group11 extends AbstractNegotiationParty {
 	 */
 	@Override
 	public void receiveMessage(Object sender, Action action) {
+		super.receiveMessage(sender, action);
+		
+		
 		// Here you can listen to other parties' messages
 
-		// TODO also record what the Action was that this action is a response
-		// to.
+		try {
+			OpponentUtilityModel opponent = opponents.get(sender);
+			if (opponent == null) {
+				opponent = new OpponentUtilityModel(getUtilitySpace()
+						.getDomain());
+				opponents.put(sender, opponent);
+			}
+			Bid prevousBid = allBids.getLastBid();
 
-		Opponent opponent = opponents.get(sender);
-		if (opponent == null) {
-			opponent = new Opponent();
-			opponents.put(sender, opponent);
-		}
+			// Update opponent specific history
+			if (action instanceof Offer) {
+				// Update global history
+				Bid bid = Action.getBidFromAction(action);
+				BidDetails details = new BidDetails(bid, getUtility(bid));
+				allBids.add(details);
 
-		Bid prevousBid = allBids.getLastBid();
-
-		// Update opponent specific history
-		if (action instanceof Offer) {
-			// Update global history
-			Bid bid = Action.getBidFromAction(action);
-			BidDetails details = new BidDetails(bid, getUtility(bid));
-			allBids.add(details);
-
-			opponent.addOffer(prevousBid, bid);
-		} else if (action instanceof Accept) {
-			// TODO check if the accept is actually from the lastBid
-			//BidDetails details = allBids.getLastBidDetails();
-
-			opponent.addAccept(prevousBid);
-		} else {
-			System.out.println("WARNING :: UNKNOWN ACTION :: "
-					+ action.getClass().getCanonicalName());
+				opponent.addOffer(prevousBid, bid);
+			} else if (action instanceof Accept) {
+				opponent.addAccept(prevousBid);
+			} else if (action instanceof Inform) {
+				// TODO handle info
+				// Inform inform = (Inform) action;
+				// if (inform.getName().equals("numParties")) {
+				// int numParties = ((Integer) inform.getValue()).intValue();
+				// for (int i = 0; i < numParties; i++) {
+				// System.out
+				// .println("Simon says: \"Welcome to the negotiation, party "
+				// + (i + 1) + "!\"");
+				// }
+				// }
+			} else {
+				System.out.println("WARNING :: UNKNOWN ACTION :: "
+						+ action.getClass().getCanonicalName());
+			}
+		} catch (InvalidDomainException | InvalidBidException e) {
+			e.printStackTrace();
 		}
 	}
 
 	private void sortOutcomeSpaceOnNashProduct() {
-		ArrayList<UtilitySpace> opponentSpaces = new ArrayList<UtilitySpace>();
+		ArrayList<OpponentUtilityModel> opponentModels = new ArrayList<OpponentUtilityModel>();
 		Domain d = getUtilitySpace().getDomain();
-		for (Entry<Object, Opponent> e : opponents.entrySet()) {
-			opponentSpaces.add(e.getValue().calculateUtilitySpace(d));
+		for (Entry<Object, OpponentUtilityModel> e : opponents.entrySet()) {
+			opponentModels.add(e.getValue());
 		}
 
 		List<BidDetails> bids = possibleBids.getAllOutcomes();
@@ -270,15 +323,15 @@ public class Group11 extends AbstractNegotiationParty {
 
 		for (BidDetails bd : bids) {
 			nashes.add(new BidDetailsWithNash(bd.getBid(),
-					getNashUtilityProduct(bd.getBid(), opponentSpaces)));
+					getNashUtilityProduct(bd.getBid(), opponentModels)));
 		}
 
 		Collections.sort(nashes, new Comparator<BidDetailsWithNash>() {
 			@Override
 			public int compare(BidDetailsWithNash lbdwn,
 					BidDetailsWithNash rbdwn) {
-				return (int) (lbdwn.getMyUndiscountedUtil() - rbdwn
-						.getMyUndiscountedUtil());
+				return (int) (1000000 * (lbdwn.getMyUndiscountedUtil() - rbdwn
+						.getMyUndiscountedUtil()));
 			}
 		});
 
@@ -286,16 +339,30 @@ public class Group11 extends AbstractNegotiationParty {
 	}
 
 	private double getNashUtilityProduct(Bid b,
-			ArrayList<UtilitySpace> opponentSpaces) {
+			ArrayList<OpponentUtilityModel> opponentModels) {
+		// System.out.println("NashUtilProd for bid " + b.toString());
+
 		double res = getUtility(b);
 
-		for (UtilitySpace u : opponentSpaces) {
+		// System.out.println("- My: " + res);
+
+		for (OpponentUtilityModel m : opponentModels) {
 			try {
-				res *= u.getUtility(b);
-			} catch (Exception e) {
+				double util = m.getUtility(b);
+				if (!Double.isNaN(util)) {
+					res *= util;
+				} else {
+
+				}
+
+				// System.out.println("- Other: " + util + " => " + res);
+
+			} catch (InvalidBidException e) {
 				e.printStackTrace();
 			}
 		}
+
+		// System.out.println("-- Total: " + res);
 
 		return res;
 	}
