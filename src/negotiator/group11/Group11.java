@@ -194,7 +194,7 @@ public class Group11 extends AbstractNegotiationParty {
 		}
 	}
 
-	private static final int numberOfRoundForOpponentModel = 20;
+	private static final int numberOfRoundForOpponentModel = 200;
 
 	private boolean thereWillNeverBeATrustedOpponentModel() {
 		return (round / getTime()) < numberOfRoundForOpponentModel;
@@ -251,11 +251,12 @@ public class Group11 extends AbstractNegotiationParty {
 			if (getTime() > 0.95)
 				return new Accept();
 			else {
-				double currentTime = getTime();
-				double discount = Math.max(1,
-						(-1.9531 * Math.pow(currentTime, 2))
-								+ (2.2251 * currentTime) + 0.3626);
-				return getOfferFromPreviousUtil(discount);
+				// double currentTime = getTime();
+				// double discount = Math.max(1,
+				// (-1.9531 * Math.pow(currentTime, 2))
+				// + (2.2251 * currentTime) + 0.3626);
+				// discount = 1.3 - (0.6 * currentTime);
+				return getOfferFromPreviousUtil(reservationUtility);
 			}
 		case THEFINGER:
 			return new EndNegotiation();
