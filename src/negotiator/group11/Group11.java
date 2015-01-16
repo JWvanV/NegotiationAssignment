@@ -92,7 +92,7 @@ public class Group11 extends AbstractNegotiationParty {
 		this.round++;
 		double currentTime = getTime();
 		// if we are the first party, make the best offer.
-		if (!validActions.contains(Accept.class)) 
+		if (!validActions.contains(Accept.class))
 			return getActionForTactic(Tactics.ASOCIAL);
 
 		// Give in to our reservation value in the endgame;
@@ -205,7 +205,7 @@ public class Group11 extends AbstractNegotiationParty {
 	}
 
 	private Action getActionForTactic(Tactics t) {
-		System.out.println("getActionForTactic: " + t);
+		System.out.println("Round " + round + " | Tactic: " + t);
 		switch (t) {
 		case RANDOM:
 			return bid(possibleBids
