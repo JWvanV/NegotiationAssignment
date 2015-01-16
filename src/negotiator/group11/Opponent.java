@@ -13,6 +13,7 @@ import negotiator.issue.Issue;
 import negotiator.issue.IssueDiscrete;
 import negotiator.issue.IssueInteger;
 import negotiator.issue.IssueReal;
+import negotiator.issue.Objective;
 import negotiator.issue.Value;
 import negotiator.issue.ValueDiscrete;
 import negotiator.issue.ValueInteger;
@@ -127,11 +128,26 @@ public class Opponent {
 		for (Entry<Issue, Double> e : issueVariances.entrySet()) {
 			double weight = e.getValue() + extraFreeVariancePointsPerIssue;
 			Issue i = e.getKey();
-			u.setWeight(i, weight);
+			Evaluator ev = getEvaluator(u, i);
+			if (ev == null) {
+				System.out.println("ERROR: NULL EVALUATOR");
+			} else {
+				ev.setWeight(weight);
+			}
+//			u.setWeight(i, weight);
 			// TODO Stop this from throwing a nullpointer
-			u.lock(i);
+//			u.lock(i);
 		}
+		u.normalizeChildren(d.getIssue(0).getParent());
 
 		return u;
+	}
+
+	private Evaluator getEvaluator(UtilitySpace u, Issue i) {
+		for (Entry<Objective, Evaluator> e : u.getEvaluators()) {
+			if (e.getKey() == i)
+				return e.getValue();
+		}
+		return null;
 	}
 }
