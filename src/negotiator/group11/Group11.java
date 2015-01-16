@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
+import misc.Range;
 import negotiator.Bid;
 import negotiator.BidHistory;
 import negotiator.DeadlineType;
@@ -37,8 +38,10 @@ public class Group11 extends AbstractNegotiationParty {
 	private BidHistory allBids;
 	private int round;
 	private double lastUtility;
-	private static final double startReservationUtility = 0.9;
+	private static final double startReservationUtility = 0.95;
 	private double reservationUtility = startReservationUtility;
+
+	private int lastAcceptCount;
 
 	/**
 	 * Please keep this constructor. This is called by genius.
@@ -103,10 +106,14 @@ public class Group11 extends AbstractNegotiationParty {
 			utilitySpace.setReservationValue(reservationUtility);
 		}
 
+		if (previousBidHasBeenAcceptedEnough()) {
+			reservationUtility *= 0.6;
+		}
+
 		BidDetails lastBid = allBids.getLastBidDetails();
-		if (lastBid.getMyUndiscountedUtil() > reservationUtility)
-			return new Accept();
-		else if (currentTime > 0.95) {
+
+		if (currentTime > 0.95
+				|| lastBid.getMyUndiscountedUtil() > reservationUtility) {
 			return new Accept();
 		} else {
 			if (weTrustOurOpponentModel()) {
@@ -144,7 +151,10 @@ public class Group11 extends AbstractNegotiationParty {
 					if (currentTime < 0.25) {
 						return getActionForTactic(Tactics.NOSTALGIAN);
 					} else if (currentTime < 0.5) {
-						return getActionForTactic(Tactics.HARDTOGET);
+						if (previousBidHasBeenAcceptedEnough())
+							return getActionForTactic(Tactics.EDGEPUSHER);
+						else
+							return getActionForTactic(Tactics.HARDTOGET);
 					} else {
 						return getActionForTactic(Tactics.GIVEIN);
 					}
@@ -185,6 +195,12 @@ public class Group11 extends AbstractNegotiationParty {
 		return round > numberOfRoundForOpponentModel;
 	}
 
+	private boolean previousBidHasBeenAcceptedEnough() {
+		// 0.7, because 2 otherParties, should result in 1 required accept
+		int requiredAccepts = (int) ((getNumberOfParties() - 1) * 0.7);
+		return lastAcceptCount != 0 && lastAcceptCount >= requiredAccepts;
+	}
+
 	private enum Tactics {
 		RANDOM, BESTNASH, NOSTALGIAN, ASOCIAL, HARDTOGET, EDGEPUSHER, GIVEIN, THEFINGER
 	}
@@ -206,12 +222,21 @@ public class Group11 extends AbstractNegotiationParty {
 			return bid(possibleBids.getMaxBidPossible().getBid());
 		case HARDTOGET:
 			if (getTime() < 0.8)
-				return getOfferFromPreviousUtil(0.99);
+				return getOfferFromPreviousUtil(0.9);
 			else
 				return new Accept();
 		case EDGEPUSHER:
-			// TODO implement
-			break;
+			// do a new bid that is a little better then last
+			Bid lastBid = allBids.getLastBid();
+			double lastUtil = getUtility(lastBid);
+			List<BidDetails> allBetterBids = possibleBids
+					.getBidsinRange(new Range(lastUtil, 1));
+			for (BidDetails bd : allBetterBids) {
+				if (bd.getMyUndiscountedUtil() > lastUtil)
+					return bid(bd.getBid());
+			}
+			// No better bid to find, accept as well
+			return new Accept();
 		case GIVEIN:
 			if (getTime() < 0.5)
 				return getOfferFromPreviousUtil(0.99);
@@ -288,8 +313,12 @@ public class Group11 extends AbstractNegotiationParty {
 				allBids.add(details);
 
 				opponent.addOffer(prevousBid, bid);
+
+				lastAcceptCount = 0;
 			} else if (action instanceof Accept) {
 				opponent.addAccept(prevousBid);
+
+				lastAcceptCount++;
 			} else if (action instanceof Inform) {
 				// TODO handle info
 				// Inform inform = (Inform) action;
