@@ -194,7 +194,7 @@ public class Group11 extends AbstractNegotiationParty {
 		}
 	}
 
-	private static final int numberOfRoundForOpponentModel = 200;
+	private static final int numberOfRoundForOpponentModel = 20;
 
 	private boolean thereWillNeverBeATrustedOpponentModel() {
 		return (round / getTime()) < numberOfRoundForOpponentModel;
