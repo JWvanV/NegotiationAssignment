@@ -74,7 +74,9 @@ public class Group11 extends AbstractNegotiationParty {
 	}
 
 	private Offer bid(Bid bid) {
-		allBids.add(new BidDetails(bid, getUtility(bid)));
+		BidDetails bd = new BidDetails(bid, getUtility(bid));
+		lastUtility = bd.getMyUndiscountedUtil();
+		allBids.add(bd);
 		return new Offer(bid);
 	}
 
@@ -142,22 +144,30 @@ public class Group11 extends AbstractNegotiationParty {
 						&& unknownCounter >= modifySelfCounter)
 					return getActionForTactic(Tactics.BESTNASH);
 				else if (modifyPreviousCounter >= modifySelfCounter)
-					return getActionForTactic(Tactics.NOSTALGIAN);
+					return getActionForTactic(Tactics.EDGEPUSHER);
 				else
 					return getActionForTactic(Tactics.BESTNASH);
 			} else {
+				// Not enough data to trust our model
 				if (thereWillNeverBeATrustedOpponentModel()) {
-					if (currentTime < 0.25) {
-						return getActionForTactic(Tactics.NOSTALGIAN);
-					} else if (currentTime < 0.5) {
-						if (previousBidHasBeenAcceptedEnough())
-							return getActionForTactic(Tactics.EDGEPUSHER);
-						else
+					// Well fuck...
+					if (previousBidHasBeenAcceptedEnough())
+						return getActionForTactic(Tactics.EDGEPUSHER);
+					else {
+						// No consensus yet
+						if (currentTime < 0.25) {
+							// First quarter:
 							return getActionForTactic(Tactics.HARDTOGET);
-					} else {
-						return getActionForTactic(Tactics.GIVEIN);
+						} else if (currentTime < 0.5) {
+							// Second quarter:
+							return getActionForTactic(Tactics.NOSTALGIAN);
+						} else {
+							// Last half:
+							return getActionForTactic(Tactics.GIVEIN);
+						}
 					}
 				} else {
+					// Oponent model will come, we just have to wait
 					return getActionForTactic(Tactics.RANDOM);
 				}
 			}
@@ -221,16 +231,16 @@ public class Group11 extends AbstractNegotiationParty {
 		case ASOCIAL:
 			return bid(possibleBids.getMaxBidPossible().getBid());
 		case HARDTOGET:
-			if (getTime() < 0.8)
-				return getOfferFromPreviousUtil(0.9);
-			else
-				return new Accept();
+			return getOfferFromPreviousUtil(0.99);
 		case EDGEPUSHER:
 			// do a new bid that is a little better then last
 			Bid lastBid = allBids.getLastBid();
 			double lastUtil = getUtility(lastBid);
 			List<BidDetails> allBetterBids = possibleBids
 					.getBidsinRange(new Range(lastUtil, 1));
+			// Get first that is better, since i don't know how getBidsInRange
+			// is
+			// sorted. Also I want to avoid picking the lastBid;
 			for (BidDetails bd : allBetterBids) {
 				if (bd.getMyUndiscountedUtil() > lastUtil)
 					return bid(bd.getBid());
@@ -238,18 +248,15 @@ public class Group11 extends AbstractNegotiationParty {
 			// No better bid to find, accept as well
 			return new Accept();
 		case GIVEIN:
-			if (getTime() < 0.5)
-				return getOfferFromPreviousUtil(0.99);
-			else if (getTime() < 0.7)
-				return getOfferFromPreviousUtil(0.95);
-			else if (getTime() < 0.8)
-				return getOfferFromPreviousUtil(0.9);
-			else if (getTime() < 0.9)
-				return getOfferFromPreviousUtil(0.8);
-			else if (getTime() < 0.95)
-				return getOfferFromPreviousUtil(0.7);
-			else
+			if (getTime() > 0.95)
 				return new Accept();
+			else {
+				double currentTime = getTime();
+				double discount = Math.max(1,
+						(-1.9531 * Math.pow(currentTime, 2))
+								+ (2.2251 * currentTime) + 0.3626);
+				return getOfferFromPreviousUtil(discount);
+			}
 		case THEFINGER:
 			return new EndNegotiation();
 		default:
@@ -260,9 +267,8 @@ public class Group11 extends AbstractNegotiationParty {
 		return getActionForTactic(Tactics.ASOCIAL);
 	}
 
-	private Offer getOfferFromPreviousUtil(double prevUtil) {
-		BidDetails bid = possibleBids.getBidNearUtility(prevUtil * lastUtility);
-		lastUtility = bid.getMyUndiscountedUtil();
+	private Offer getOfferFromPreviousUtil(double discount) {
+		BidDetails bid = possibleBids.getBidNearUtility(discount * lastUtility);
 		return bid(bid.getBid());
 	}
 
