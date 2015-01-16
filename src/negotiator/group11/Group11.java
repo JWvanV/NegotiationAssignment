@@ -268,8 +268,7 @@ public class Group11 extends AbstractNegotiationParty {
 	@Override
 	public void receiveMessage(Object sender, Action action) {
 		super.receiveMessage(sender, action);
-		
-		
+
 		// Here you can listen to other parties' messages
 
 		try {
@@ -313,7 +312,6 @@ public class Group11 extends AbstractNegotiationParty {
 
 	private void sortOutcomeSpaceOnNashProduct() {
 		ArrayList<OpponentUtilityModel> opponentModels = new ArrayList<OpponentUtilityModel>();
-		Domain d = getUtilitySpace().getDomain();
 		for (Entry<Object, OpponentUtilityModel> e : opponents.entrySet()) {
 			opponentModels.add(e.getValue());
 		}
@@ -330,8 +328,8 @@ public class Group11 extends AbstractNegotiationParty {
 			@Override
 			public int compare(BidDetailsWithNash lbdwn,
 					BidDetailsWithNash rbdwn) {
-				return (int) (1000000 * (lbdwn.getMyUndiscountedUtil() - rbdwn
-						.getMyUndiscountedUtil()));
+				return (int) (1000000 * (lbdwn.getEstimatedNashValue() - rbdwn
+						.getEstimatedNashValue()));
 			}
 		});
 

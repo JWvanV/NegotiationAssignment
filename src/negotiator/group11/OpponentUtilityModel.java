@@ -179,6 +179,8 @@ public class OpponentUtilityModel {
 	}
 
 	class InvalidDomainException extends Exception {
+		private static final long serialVersionUID = -6947113453964713361L;
+
 		public InvalidDomainException(ISSUETYPE issueType) {
 			super("Domains with issues of type " + issueType
 					+ " are not supported!");
@@ -186,6 +188,8 @@ public class OpponentUtilityModel {
 	}
 
 	class InvalidBidException extends Exception {
+		private static final long serialVersionUID = -801096984481420822L;
+
 		public InvalidBidException(ISSUETYPE issueType) {
 			super("Bids with issues of type " + issueType
 					+ " are not supported!");
