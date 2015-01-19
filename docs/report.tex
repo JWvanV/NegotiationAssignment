@@ -9,8 +9,31 @@
 \usepackage{float}
 \restylefloat{table}
 \usepackage{subfiles}
+\usepackage{forest}
+
+
+\tikzset{
+Above/.style={
+  midway,
+  above,
+  font=\scriptsize,
+  text width=1.5cm,
+  align=center,
+  },
+Below/.style={
+  midway,
+  below,
+  font=\scriptsize,
+  text width=1.5cm,
+  align=center
+  }
+}
+
 
 \begin{document}
+
+
+
 
 \begin{titlepage}
 \begin{center}
@@ -374,6 +397,7 @@ Wheels &3   & 3 & 3 &3 &4 &4 &2 &8 &1 &12 \\
 
 \subfile{agentdescription.tex}
 
+\subfile{decisiontree.tex}
 
 \section*{Tests we performed}
 
