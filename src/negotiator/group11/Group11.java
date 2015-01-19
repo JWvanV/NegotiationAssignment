@@ -361,29 +361,17 @@ public class Group11 extends AbstractNegotiationParty {
 
 	private double getNashUtilityProduct(Bid b,
 			ArrayList<OpponentUtilityModel> opponentModels) {
-		// System.out.println("NashUtilProd for bid " + b.toString());
 
 		double res = getUtility(b);
-
-		// System.out.println("- My: " + res);
-
 		for (OpponentUtilityModel m : opponentModels) {
 			try {
 				double util = m.getUtility(b);
-				if (!Double.isNaN(util)) {
+				if (!Double.isNaN(util))
 					res *= util;
-				} else {
-
-				}
-
-				// System.out.println("- Other: " + util + " => " + res);
-
 			} catch (InvalidBidException e) {
 				e.printStackTrace();
 			}
 		}
-
-		// System.out.println("-- Total: " + res);
 
 		return res;
 	}
