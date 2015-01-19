@@ -13,7 +13,6 @@ import misc.Range;
 import negotiator.Bid;
 import negotiator.BidHistory;
 import negotiator.DeadlineType;
-import negotiator.Domain;
 import negotiator.Timeline;
 import negotiator.actions.Accept;
 import negotiator.actions.Action;
@@ -167,30 +166,10 @@ public class Group11 extends AbstractNegotiationParty {
 						}
 					}
 				} else {
-					// Oponent model will come, we just have to wait
+					// Opponent model will come, we just have to wait
 					return getActionForTactic(Tactics.RANDOM);
 				}
 			}
-
-			// Afknaps
-			// if (lastBid.getMyUndiscountedUtil() < 0.3 && getTime() > 0.8) {
-			// return new EndNegotiation();
-			// }
-
-			// If you were made a decent offer once, reoffer it, unless it is
-			// the
-			// last bid, then accept...
-			// if (bestBid != null
-			// && bestBid.getMyUndiscountedUtil() > 1 - getTime()) {
-			// if (Math.abs(bestBid.getMyUndiscountedUtil()
-			// - lastBid.getMyUndiscountedUtil()) < 0.05) {
-			// return new Accept();
-			// } else {
-			// return bid(bestBid.getBid());
-			// }
-			// }
-
-			// return getActionForTactic(Tactics.GIVEIN);
 		}
 	}
 
@@ -218,10 +197,10 @@ public class Group11 extends AbstractNegotiationParty {
 		System.out.println("Round " + round + " | Tactic: " + t);
 		switch (t) {
 		case RANDOM:
-			double reservationValue = getUtilitySpace().getReservationValue();
 			// We don't want to bid under our reservation value
 			List<BidDetails> randomBids = possibleBids
-					.getBidsinRange(new Range(reservationValue, 1));
+					.getBidsinRange(new Range(getUtilitySpace()
+							.getReservationValue(), 1));
 			if (randomBids.size() == 0) {
 				return getActionForTactic(Tactics.GIVEIN);
 			} else {
@@ -370,7 +349,9 @@ public class Group11 extends AbstractNegotiationParty {
 			@Override
 			public int compare(BidDetailsWithNash lbdwn,
 					BidDetailsWithNash rbdwn) {
-				return (int) (1000000 * (lbdwn.getEstimatedNashValue() - rbdwn
+				// Big value (1000000000) is because else the values would be so
+				// small that Java would throw a 'MisuseOfContractException'
+				return (int) (1000000000 * (lbdwn.getEstimatedNashValue() - rbdwn
 						.getEstimatedNashValue()));
 			}
 		});
