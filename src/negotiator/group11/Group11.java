@@ -72,6 +72,12 @@ public class Group11 extends AbstractNegotiationParty {
 		utilitySpace.setReservationValue(reservationUtility);
 	}
 
+	/**
+	 * Convenience method to make a new offer and save the relevant information
+	 * 
+	 * @param bid
+	 * @return
+	 */
 	private Offer bid(Bid bid) {
 		BidDetails bd = new BidDetails(bid, getUtility(bid));
 		lastUtility = bd.getMyUndiscountedUtil();
@@ -173,26 +179,62 @@ public class Group11 extends AbstractNegotiationParty {
 		}
 	}
 
+	/**
+	 * The minimum required rounds needed to make an opponent model
+	 */
 	private static final int numberOfRoundForOpponentModel = 20;
 
+	/**
+	 * Determine whether we will ever have an opponent model significant enough
+	 * @return true iff there will never be a trusted opponent model
+	 */
 	private boolean thereWillNeverBeATrustedOpponentModel() {
 		return (round / getTime()) < numberOfRoundForOpponentModel;
 	}
 
+	/**
+	 * Determine whether the current opponent model is trustworthy
+	 * based on the amount of rounds passed
+	 * @return true iff the opponent model is trusted
+	 */
 	private boolean weTrustOurOpponentModel() {
 		return round > numberOfRoundForOpponentModel;
 	}
 
+	/**
+	 * Determine whether the previous bid has been accepted many times by other parties
+	 * 
+	 * @return true iff enough parties have accepted the previous bid
+	 */
 	private boolean previousBidHasBeenAcceptedEnough() {
 		// 0.7, because 2 otherParties, should result in 1 required accept
 		int requiredAccepts = (int) ((getNumberOfParties() - 1) * 0.7);
 		return lastAcceptCount != 0 && lastAcceptCount >= requiredAccepts;
 	}
 
+	/**
+	 * Definition of the available tactics for this agent.
+	 * 
+	 * RANDOM	-	Offer a random bid above your reservation value
+	 * BESTNASH	-	Offer the best Nash bid according to opponent models
+	 * NOSTALGIAN -	Offer the best bid that has ever been done by any agent
+	 * ASOCIAL	-	Offer the best bid possible for you
+	 * HARDTOGET -	Offer a bid of 0.99 * the previous utility
+	 * EDGEPUSHER -	Offer a bid slightly better than the one before
+	 * GIVEIN	-	Offer a bid near your reservation value
+	 * THEFINGER -	Leave the negotiation
+	 */
 	private enum Tactics {
 		RANDOM, BESTNASH, NOSTALGIAN, ASOCIAL, HARDTOGET, EDGEPUSHER, GIVEIN, THEFINGER
 	}
 
+	/**
+	 * Based on a specific tactic and the internal parameters, 
+	 * this will give an action to perform.
+	 * 
+	 * @param t
+	 * @return
+	 */
 	private Action getActionForTactic(Tactics t) {
 		System.out.println("Round " + round + " | Tactic: " + t);
 		switch (t) {
@@ -253,6 +295,11 @@ public class Group11 extends AbstractNegotiationParty {
 		return getActionForTactic(Tactics.ASOCIAL);
 	}
 
+	/**
+	 * Get an offer with discount times the utility of your last utility
+	 * @param discount multiplication factor
+	 * @return
+	 */
 	private Offer getOfferFromPreviousUtil(double discount) {
 		BidDetails bid = possibleBids.getBidNearUtility(discount * lastUtility);
 		return bid(bid.getBid());
@@ -263,13 +310,14 @@ public class Group11 extends AbstractNegotiationParty {
 	 * @return the partial of rounds done, or 0 when there is no deadline
 	 */
 	private double getTime() {
-		int deadline = (int) this.deadlines.get(DeadlineType.ROUND);
+		if (this.deadlines != null) {
+			Object d = this.deadlines.get(DeadlineType.ROUND);
 
-		if (deadline != 0) {
-			return (double) this.round / deadline;
-		} else {
-			return getTimeLine().getTime();
+			if (d != null && (int) d != 0) {
+				return (double) this.round / (int) d;
+			}
 		}
+		return getTimeLine().getTime();
 	}
 
 	/**
@@ -331,6 +379,12 @@ public class Group11 extends AbstractNegotiationParty {
 		}
 	}
 
+	/**
+	 * Method to set up some of the internal parameters.
+	 * 
+	 * Creates from the list of possible bids a list of bids sorted on Nash product,
+	 * determined by the opponent models available.
+	 */
 	private void sortOutcomeSpaceOnNashProduct() {
 		ArrayList<OpponentUtilityModel> opponentModels = new ArrayList<OpponentUtilityModel>();
 		for (Entry<Object, OpponentUtilityModel> e : opponents.entrySet()) {
@@ -359,6 +413,14 @@ public class Group11 extends AbstractNegotiationParty {
 		nashBids = nashes;
 	}
 
+	/**
+	 * Based on a list of opponent models, this function determines the
+	 * Nash product for a certain bid.
+	 * 
+	 * @param b Bid to evaluate
+	 * @param opponentModels list of opponents
+	 * @return Nash product
+	 */
 	private double getNashUtilityProduct(Bid b,
 			ArrayList<OpponentUtilityModel> opponentModels) {
 

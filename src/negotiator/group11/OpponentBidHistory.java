@@ -8,6 +8,9 @@ import negotiator.Bid;
 import negotiator.issue.Issue;
 import negotiator.issue.Value;
 
+/**
+ * This class saves the history of bids done by a single opponent.
+ */
 public class OpponentBidHistory {
 
 	private ArrayList<BidSequence> bids;
@@ -16,14 +19,31 @@ public class OpponentBidHistory {
 		bids = new ArrayList<OpponentBidHistory.BidSequence>();
 	}
 
+	/**
+	 * Save a sequence of bids
+	 * @param previousBid
+	 * @param newBid
+	 */
 	public void add(Bid previousBid, Bid newBid) {
 		bids.add(new BidSequence(previousBid, newBid));
 	}
 
+	/**
+	 * @return the amount of bids in this history
+	 */
 	public int getSize() {
 		return bids.size();
 	}
 
+	/**
+	 * Try to determine what kind of strategy the opponent is using.
+	 * 
+	 * This is done by checking the difference in values between the 
+	 * opponent's current and the opponent's own last offer, 
+	 * and between the opponent's current and the overall last offer.
+	 * 
+	 * @return the strategy the opponent is most likely using.
+	 */
 	public BidModificationStrategy getMostLikelyStrategy() {
 		HashMap<BidModificationStrategy, Integer> counts = new HashMap<OpponentBidHistory.BidModificationStrategy, Integer>();
 
@@ -70,8 +90,14 @@ public class OpponentBidHistory {
 		}
 	}
 
+	/**
+	 * Get the amount of different values between two bids
+	 * 
+	 * @param bid1 Bid
+	 * @param bid2 Bid
+	 * @return the amount of different values between bid1 and bid2
+	 */
 	private double getBidDifference(Bid bid1, Bid bid2) {
-		// TODO simplify counting if we decide not to make it more complicated
 		HashMap<Integer, Boolean> counts = new HashMap<Integer, Boolean>();
 		for (Issue i : bid1.getIssues()) {
 			try {
@@ -93,14 +119,26 @@ public class OpponentBidHistory {
 		return differenceCount;
 	}
 
+	/**
+	 * There are three strategies defined, 
+	 * UNKNOWN (everything unclassified), 
+	 * MODIFY_SELF (using own bids) and
+	 * MODIFY_PREVIOUS (modify opponent bids more to your liking)
+	 */
 	enum BidModificationStrategy {
 		UNKNOWN, MODIFY_SELF, MODIFY_PREVIOUS
 	}
 
+	/**
+	 * Wrapper for two following bids
+	 */
 	class BidSequence {
 		Bid previous;
 		Bid current;
-
+		
+		/**
+		 * Wrapper for two following bids
+		 */
 		BidSequence(Bid previous, Bid current) {
 			this.previous = previous;
 			this.current = current;
