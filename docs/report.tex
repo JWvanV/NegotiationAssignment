@@ -8,9 +8,8 @@
 \usepackage{fullpage}
 \usepackage{float}
 \restylefloat{table}
-\usepackage{subfiles}
+\usepackage{tabto}
 \usepackage{forest}
-
 
 \tikzset{
 Above/.style={
@@ -29,11 +28,7 @@ Below/.style={
   }
 }
 
-
 \begin{document}
-
-
-
 
 \begin{titlepage}
 \begin{center}
@@ -392,12 +387,9 @@ Wheels &3   & 3 & 3 &3 &4 &4 &2 &8 &1 &12 \\
 
 \newpage
 
-\section*{Agent zelf uitleggen}
--De negotiating agent zelf.
+\input{agentdescription}
 
-\subfile{agentdescription.tex}
-
-\subfile{decisiontree.tex}
+\input{decisiontree}
 
 \section*{Tests we performed}
 
