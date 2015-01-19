@@ -1,4 +1,40 @@
-TEst xyz yeah
+\section*{Agent}
+Besides that our agent is one awesome badass, this might not be obvious by the look of his humble output. There are a couple of ingenious details that are worth pointing out.\\
+
+\textbf{Tactics}\\
+Our agent has a number of Tactics at its disposal to use at any given moment during the negotiation. These Tactics take the current negotiation state into account, and return an Action based on their nature. \\
+
+\noindent The following Tactics are defined:
+\begin{enumerate}
+\NumTabs{8}
+\item RANDOM:
+	\tab{Returns a random bid above the reservation value.}
+\item BESTNASH:
+	\tab{Offers the best Nash bid according to the OpponentModels.}
+\item NOSTALGIAN:
+	\tab{Offers the bid from the negotiation history with the highest utility. }
+\item ASOCIAL:
+	\tab{Offers the bid that has the highest utility.}
+\item HARDTOGET:
+	\tab{Offers a bid with 0.99 times the utility of the previous bid.}
+\item EDGEPUSHER:
+	\tab{Offers a bid slightly beter than the previous bid.}
+\item GIVEIN:
+	\tab{Offers a bid with a slightly decreased utility compared to the previous bid.}
+\item THEFINGER:
+	\tab{Leaves the negotiation.}
+\end{enumerate}
+
+
+
+\textbf{Opponent Model}\\
+Something Something\\
+
+\textbf{Opponent Strategies}\\
+Something Something\\
+
+\textbf{Our own strategies}\\
+Something Something\\
 
 \begin{itemize}
 \item an explanation and motivation of all of the choices made in the design of negotiating agent.

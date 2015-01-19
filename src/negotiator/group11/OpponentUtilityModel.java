@@ -12,9 +12,7 @@ import negotiator.issue.IssueDiscrete;
 import negotiator.issue.Value;
 import negotiator.issue.ValueDiscrete;
 
-/**
- * A model of an opponent, which tries to estimate the utility for each bid.
- * 
+/*
  * NOTE: Only supports (explicitly) Discrete Issue values
  */
 public class OpponentUtilityModel {
@@ -53,25 +51,10 @@ public class OpponentUtilityModel {
 		}
 	}
 
-	/**
-	 * Try to determine what kind of strategy the opponent is using.
-	 * 
-	 * This is done by checking the difference in values between the 
-	 * opponent's current and the opponent's own last offer, 
-	 * and between the opponent's current and the overall last offer.
-	 * 
-	 * @return the strategy the opponent is most likely using.
-	 */
 	public BidModificationStrategy getMostLikelyStrategy() {
 		return allBids.getMostLikelyStrategy();
 	}
 
-	/**
-	 * Add a bid that is accepted by this opponent
-	 * 
-	 * @param acceptBid
-	 * @throws InvalidBidException
-	 */
 	public void addAccept(Bid acceptBid) throws InvalidBidException {
 		acceptedBids.add(acceptBid, acceptBid);
 		updateCountersFromBid(acceptBid);
@@ -79,26 +62,12 @@ public class OpponentUtilityModel {
 		updateCountersFromBid(acceptBid);
 	}
 
-	/**
-	 * Add a bid that is offered by this opponent
-	 * 
-	 * @param previousBid the bid that was done before
-	 * @param offerBid the bid that was offered
-	 * @throws InvalidBidException
-	 */
 	public void addOffer(Bid previousBid, Bid offerBid)
 			throws InvalidBidException {
 		allBids.add(previousBid, offerBid);
 		updateCountersFromBid(offerBid);
 	}
 
-	/**
-	 * Update the internal parameters that count
-	 * how many times each value is offered by this opponent
-	 * 
-	 * @param b the new bid
-	 * @throws InvalidBidException
-	 */
 	private void updateCountersFromBid(Bid b) throws InvalidBidException {
 		for (Issue i : b.getIssues()) {
 			switch (i.getType()) {
@@ -125,9 +94,6 @@ public class OpponentUtilityModel {
 		updateWeightsFromCounters();
 	}
 
-	/**
-	 * Update the model of value weights that is determined from the counters
-	 */
 	private void updateWeightsFromCounters() {
 		double totalAmountOfMeasurementsPerIssue = allBids.getSize();
 
@@ -167,12 +133,6 @@ public class OpponentUtilityModel {
 		}
 	}
 
-	/**
-	 * Determine the utility for a bid based on the modeled opponent
-	 * @param b the input bid
-	 * @return the utility for the input bid for this opponent model
-	 * @throws InvalidBidException
-	 */
 	public double getUtility(Bid b) throws InvalidBidException {
 		double utility = 0;
 		for (Issue i : b.getIssues()) {
@@ -189,13 +149,6 @@ public class OpponentUtilityModel {
 		return utility;
 	}
 
-	/**
-	 * Get the valuation of issue in a certain bid, based on the opponent model
-	 * @param i
-	 * @param b
-	 * @return
-	 * @throws InvalidBidException
-	 */
 	private double getIssueEvaluation(IssueDiscrete i, Bid b)
 			throws InvalidBidException {
 		try {
@@ -218,11 +171,6 @@ public class OpponentUtilityModel {
 		}
 	}
 
-	/**
-	 * Get the maximum chosen value
-	 * @param counts
-	 * @return
-	 */
 	private double getMaxValue(HashMap<ValueDiscrete, Integer> counts) {
 		double max = 0;
 		for (Entry<ValueDiscrete, Integer> e : counts.entrySet())
