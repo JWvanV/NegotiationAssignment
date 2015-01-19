@@ -1,14 +1,14 @@
 \section*{Agent}
-Besides that our agent is one awesome badass, this might not be obvious by the look of his humble output. There are a couple of ingenious details that are worth pointing out.\\
+Besides that our agent is one awesome badass, this might not be obvious by the look of his humble output. There are a couple of ingenious details that are worth pointing out.
 
-\textbf{Tactics}\\
+\subsection*{Tactics}
 Our agent has a number of Tactics at its disposal to use at any given moment during the negotiation. These Tactics take the current negotiation state into account, and return an Action based on their nature. \\
 
 \noindent The following Tactics are defined:
 \begin{enumerate}
-\NumTabs{8}
+\NumTabs{4}
 \item RANDOM:
-	\tab{Returns a random bid above the reservation value.}
+	\tab{Offers a random bid above the reservation value.}
 \item BESTNASH:
 	\tab{Offers the best Nash bid according to the OpponentModels.}
 \item NOSTALGIAN:
@@ -20,26 +20,28 @@ Our agent has a number of Tactics at its disposal to use at any given moment dur
 \item EDGEPUSHER:
 	\tab{Offers a bid slightly beter than the previous bid.}
 \item GIVEIN:
-	\tab{Offers a bid with a slightly decreased utility compared to the previous bid.}
+	\tab{Offers a bid that is slightly worse compared to the last.}
 \item THEFINGER:
 	\tab{Leaves the negotiation.}
 \end{enumerate}
 
+\subsection*{Opponent Utility Model}
+In order to make a prediction about the utilities of the opponent, we keep track of their actions and compile this into usefull information. Every opponent in the negotiation gets their own model.\\
 
+First of all, we keep counters for all the issue-values in the Domain, and measure how often an opponent includes these values in the bids that it offers. These counts are then used to compute the issue weights and issue-value weights. For every issue, the statistical variance in the issue-value counts is calculated. These are then normalised over all issues, while making sure that no issue has a weight of 0. Lastly, the issue-value weights are made equal to the issue-value counts.
 
-\textbf{Opponent Model}\\
+\subsection*{Opponent Strategy Model}
+Besides estimating the opponents utility, we can also make a very rough estimation of the opponents tactic. This metric is only used when it's not possible to create a reliable utility model for the opponent. The model does this by taking the opponents bidding history into account, where it records what bids are done by the opponent, but also what the previous bid was that this new bid could be a response to. Every bid that the opponent has done is then compared to two other bids and a distance measure is calculated. The first bid is the previous bid in the negotiation, the other is the previous bid by the opponent. These can be the same, but most likely won't be. If the distance to the first bid is smaller than the distance to the other bid, it is more likely that the opponent's tactic is to alter the previous bid in the negotiation. If not, it is more likely that the opponent is only changing his own bid every round. 
+
+\subsection*{Our own strategies}
 Something Something\\
 
-\textbf{Opponent Strategies}\\
-Something Something\\
-
-\textbf{Our own strategies}\\
+\subsection*{How to read this in the source code}
 Something Something\\
 
 \begin{itemize}
-\item an explanation and motivation of all of the choices made in the design of negotiating agent.
-\item should help the reader to understand the organization of the source code (important details should be commented on in the source code itself).This means that the main Java methods used by your agent should
-be explained in the report itself.
+\item \st{an explanation and motivation of all of the choices made in the design of negotiating agent.}
+\item should help the reader to understand the organization of the source code (important details should be commented on in the source code itself).This means that the main Java methods used by your agent should be explained in the report itself.
 \item a high-level description of the agent and its structure, including the main Java methods (mention these explicitly!) used in the negotiating agent that have been implemented in the source code.
 \item an explanation of the negotiation strategy, decision function for accepting offers, any important preparatory steps, and heuristics that the agent uses to decide what to do next, including the factors that have been selected and their combination into these functions.
 \end{itemize}
