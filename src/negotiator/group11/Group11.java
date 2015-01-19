@@ -218,10 +218,16 @@ public class Group11 extends AbstractNegotiationParty {
 		System.out.println("Round " + round + " | Tactic: " + t);
 		switch (t) {
 		case RANDOM:
-			return bid(possibleBids
-					.getAllOutcomes()
-					.get(possibleBids.getIndexOfBidNearUtility(new Random()
-							.nextDouble())).getBid());
+			double reservationValue = getUtilitySpace().getReservationValue();
+			// We don't want to bid under our reservation value
+			List<BidDetails> randomBids = possibleBids
+					.getBidsinRange(new Range(reservationValue, 1));
+			if (randomBids.size() == 0) {
+				return getActionForTactic(Tactics.GIVEIN);
+			} else {
+				return bid(randomBids.get(
+						new Random().nextInt(randomBids.size())).getBid());
+			}
 		case BESTNASH:
 			// In the assumption that our opponent does not do this as well,
 			// else this will keep on giving the same bid
