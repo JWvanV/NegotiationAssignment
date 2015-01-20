@@ -34,7 +34,9 @@ First of all, we keep counters for all the issue-values in the Domain, and measu
 Besides estimating the opponents utility, we can also make a very rough estimation of the opponents tactic. This metric is only used when it's not possible to create a reliable utility model for the opponent. The model does this by taking the opponents bidding history into account, where it records what bids are done by the opponent, but also what the previous bid was that this new bid could be a response to. Every bid that the opponent has done is then compared to two other bids and a distance measure is calculated. The first bid is the previous bid in the negotiation, the other is the previous bid by the opponent. These can be the same, but most likely won't be. If the distance to the first bid is smaller than the distance to the other bid, it is more likely that the opponent's tactic is to alter the previous bid in the negotiation. If not, it is more likely that the opponent is only changing his own bid every round. 
 
 \subsection{Our own strategies}
-Apart from the way our agent analyzes its opponents, there is a strategy for its bidding routine as well. We will describe this from the beginning. Furthermore, we would like to state that our agent differentiates between long and short negotiations, because it takes a different strategy for each of them. The critical value is currently set at 20 rounds.
+Apart from the way our agent analyzes its opponents, there is a strategy for its bidding routine as well. We will describe this from the beginning. Furthermore, we would like to state that our agent differentiates between long and short negotiations, because it takes a different strategy for each of them. The critical value is currently set at 20 rounds. All of the described strategies can be seen in figure~\ref{fig:decisiontree}
+
+\input{decisiontree}
 
 \subsubsection{The first bid}
 For the first bid, we really like to make a statement, so we choose the ASOCIAL tactic, which means we offer the best bid for ourselves.
