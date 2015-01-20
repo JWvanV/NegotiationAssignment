@@ -34,7 +34,37 @@ First of all, we keep counters for all the issue-values in the Domain, and measu
 Besides estimating the opponents utility, we can also make a very rough estimation of the opponents tactic. This metric is only used when it's not possible to create a reliable utility model for the opponent. The model does this by taking the opponents bidding history into account, where it records what bids are done by the opponent, but also what the previous bid was that this new bid could be a response to. Every bid that the opponent has done is then compared to two other bids and a distance measure is calculated. The first bid is the previous bid in the negotiation, the other is the previous bid by the opponent. These can be the same, but most likely won't be. If the distance to the first bid is smaller than the distance to the other bid, it is more likely that the opponent's tactic is to alter the previous bid in the negotiation. If not, it is more likely that the opponent is only changing his own bid every round. 
 
 \subsection{Our own strategies}
-Something Something\\
+Apart from the way our agent analyzes its opponents, there is a strategy for its bidding routine as well. We will describe this from the beginning. Furthermore, we would like to state that our agent differentiates between long and short negotiations, because it takes a different strategy for each of them. The critical value is currently set at 20 rounds.
+
+\subsubsection{The first bid}
+For the first bid, we really like to make a statement, so we choose the ASOCIAL tactic, which means we offer the best bid for ourselves.
+
+\subsubsection{Accepting offers}
+Apart from several accepting stages in the tactics that will be explained in the next sections, there are certain offers that will be accepted at any time. One possibility is an offer with a utility that is higher than the reservation value. This will always be accepted. This may sound weird, but the reservation value starts off at 0.95, which is not bad at all! This reservation value can be lowered in the final stage (see section~\ref{sec:finalstage}), or when the majority of other parties seems to accept an offer. In this last case, the reservation value is multiplied by 0.6, so the offer might be accepted then.
+
+\subsubsection{Long negotiation}
+In a long negation (i.e. there are more than 20 rounds in total), we have the possibility to build a trustworthy opponent model.
+\\\\
+As long as we do not have this model yet (20 rounds have not passed yet) we will apply the RANDOM tactic, which means we will do a random offer above our reservation value. The opponent will either accept, which is fine, or offer according to its own strategy, which is also fine, because that means we can determine its preferences.
+\\\\
+After 20 rounds we will have a trustworthy model, so we will act according to that. Right now, the most important part of this, is when the opponent is believed to offer bids depending on our own bids. When this is the case, we will apply the EDGEPUSHER tactic, which tries a slightly better offer for us each round, to see whether the opponent might modify that and make a better offer for us to accept. If the opponent is likely to modify his own bids or if the strategy is unknown, we apply the BESTNASH tactic. This picks the best offer from a list of bids sorted on their calculated Nash product, determined by using the opponent models. This bid may change every round due to other offers the opponents might make.
+
+\subsubsection{Short negotiation}
+In a short negotiation (i.e. there are less than 20 rounds in total), we will never have a trustworthy opponent model. We will now apply a tactic based on the time that is left for this negotiation.
+\\\\
+In the first quarter of the negotiation, we will apply the HARDTOGET tactic, which means we will offer a bid with a utility around 0.99 times the utility of our last offer.
+\\\\
+In the second quarter of the negotiation, we will apply the NOSTALGIAN tactic, which means we will stick to the best bid that has been done during the entire negotiation.
+\\\\
+Finally, in the last half of the negotiation, we will apply the GIVEIN tactic, which is very descriptive in itself. We will give in a bit. Each next offer is around the utility of $reservation value * utility of last offer$, so each offer is more like to be accepted by the opponents.
+\\\\
+As a final remark to the short negotiations, it has to be said that if the majority of people accepted an offer, we will at any time apply the EDGEPUSHER tactic.
+
+\subsubsection{The final stage}
+\label{sec:finalstage}
+When the time is running out, we believe that making a bad agreement is always better than making no agreement. Therefore, we will accept any offer when the negotiation is over 95\% of time.
+\\\\
+To prevent that this final accepted offer is not the worst for us, starting from 85\% of time, we are lowering our reservation value. Whereas this is 0.95 before this stage, it is now linearly lowered down to 0.5 at 95\% of time. Do you recall that we accept any offer above our reservation value? Well, this works! So most likely, an accepting offer is made before we reach 95\% of time, which will most likely be quite good.
 
 \subsection{How to read this in the source code}
 Something Something\\
