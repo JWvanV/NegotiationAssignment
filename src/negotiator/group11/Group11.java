@@ -183,7 +183,7 @@ public class Group11 extends AbstractNegotiationParty {
 	/**
 	 * The minimum required rounds needed to make an opponent model
 	 */
-	private static final int numberOfRoundForOpponentModel = 20;
+	private static final int numberOfRoundForOpponentModel = 10;
 
 	/**
 	 * Determine whether we will ever have an opponent model significant enough
