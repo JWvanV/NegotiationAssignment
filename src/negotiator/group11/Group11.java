@@ -122,57 +122,58 @@ public class Group11 extends AbstractNegotiationParty {
 				|| lastBid.getMyUndiscountedUtil() > reservationUtility) {
 			return new Accept();
 		} else {
-			if (weTrustOurOpponentModel()) {
-				sortOutcomeSpaceOnNashProduct();
-
-				// TODO do something with the aprox opponent tactics
-				int unknownCounter = 0;
-				int modifyPreviousCounter = 0;
-				int modifySelfCounter = 0;
-				for (Entry<Object, OpponentUtilityModel> e : opponents
-						.entrySet()) {
-					switch (e.getValue().getMostLikelyStrategy()) {
-					case UNKNOWN:
-						unknownCounter++;
-						break;
-					case MODIFY_PREVIOUS:
-						modifyPreviousCounter++;
-						break;
-					case MODIFY_SELF:
-						modifySelfCounter++;
-						break;
+			// Short negotiation
+			if (thereWillNeverBeATrustedOpponentModel()) {
+				if (previousBidHasBeenAcceptedEnough())
+					return getActionForTactic(Tactics.EDGEPUSHER);
+				else {
+					// No consensus yet
+					if (currentTime < 0.25) {
+						// First quarter:
+						return getActionForTactic(Tactics.HARDTOGET);
+					} else if (currentTime < 0.5) {
+						// Second quarter:
+						return getActionForTactic(Tactics.NOSTALGIAN);
+					} else {
+						// Last half:
+						return getActionForTactic(Tactics.GIVEIN);
 					}
 				}
-
-				// TODO maybe do other strategies
-				if (unknownCounter >= modifyPreviousCounter
-						&& unknownCounter >= modifySelfCounter)
-					return getActionForTactic(Tactics.BESTNASH);
-				else if (modifyPreviousCounter >= modifySelfCounter)
-					return getActionForTactic(Tactics.EDGEPUSHER);
-				else
-					return getActionForTactic(Tactics.BESTNASH);
 			} else {
-				// Not enough data to trust our model
-				if (thereWillNeverBeATrustedOpponentModel()) {
-					// Well fuck...
-					if (previousBidHasBeenAcceptedEnough())
-						return getActionForTactic(Tactics.EDGEPUSHER);
-					else {
-						// No consensus yet
-						if (currentTime < 0.25) {
-							// First quarter:
-							return getActionForTactic(Tactics.HARDTOGET);
-						} else if (currentTime < 0.5) {
-							// Second quarter:
-							return getActionForTactic(Tactics.NOSTALGIAN);
-						} else {
-							// Last half:
-							return getActionForTactic(Tactics.GIVEIN);
+				//Long negotiation
+				if (weTrustOurOpponentModel()) {
+					//Enough rounds have passed
+					sortOutcomeSpaceOnNashProduct();
+
+					// TODO do something with the aprox opponent tactics
+					int unknownCounter = 0;
+					int modifyPreviousCounter = 0;
+					int modifySelfCounter = 0;
+					for (Entry<Object, OpponentUtilityModel> e : opponents
+							.entrySet()) {
+						switch (e.getValue().getMostLikelyStrategy()) {
+						case UNKNOWN:
+							unknownCounter++;
+							break;
+						case MODIFY_PREVIOUS:
+							modifyPreviousCounter++;
+							break;
+						case MODIFY_SELF:
+							modifySelfCounter++;
+							break;
 						}
 					}
+
+					// TODO maybe do other strategies
+					if (unknownCounter >= modifyPreviousCounter
+							&& unknownCounter >= modifySelfCounter)
+						return getActionForTactic(Tactics.BESTNASH);
+					else if (modifyPreviousCounter >= modifySelfCounter)
+						return getActionForTactic(Tactics.EDGEPUSHER);
+					else
+						return getActionForTactic(Tactics.BESTNASH);
 				} else {
-					// Opponent model will come, we just have to wait
+					//Build opponent model
 					return getActionForTactic(Tactics.RANDOM);
 				}
 			}
@@ -199,16 +200,6 @@ public class Group11 extends AbstractNegotiationParty {
 	 * @return true iff the opponent model is trusted
 	 */
 	private boolean weTrustOurOpponentModel() {
-		// Print the preference profile, for testing purposes
-		/*if(first && round > numberOfRoundForOpponentModel && round > 150) {
-			first = false;
-			for (Entry<Object, OpponentUtilityModel> e : opponents
-					.entrySet()) {
-				System.out.println("Preference profile for " + e.getKey());
-				System.out.println(e.getValue());
-			}
-		}*/
-		
 		return round > numberOfRoundForOpponentModel;
 	}
 
