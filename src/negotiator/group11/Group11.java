@@ -57,8 +57,6 @@ public class Group11 extends AbstractNegotiationParty {
 	public Group11(UtilitySpace utilitySpace,
 			Map<DeadlineType, Object> deadlines, Timeline timeline,
 			long randomSeed) {
-		// TODO check if it might be fun if we give other data to the parent
-		// i.e. randomseed+1
 		super(utilitySpace, deadlines, timeline, randomSeed);
 
 		this.round = 0;
@@ -145,7 +143,6 @@ public class Group11 extends AbstractNegotiationParty {
 					//Enough rounds have passed
 					sortOutcomeSpaceOnNashProduct();
 
-					// TODO do something with the aprox opponent tactics
 					int unknownCounter = 0;
 					int modifyPreviousCounter = 0;
 					int modifySelfCounter = 0;
@@ -164,7 +161,6 @@ public class Group11 extends AbstractNegotiationParty {
 						}
 					}
 
-					// TODO maybe do other strategies
 					if (unknownCounter >= modifyPreviousCounter
 							&& unknownCounter >= modifySelfCounter)
 						return getActionForTactic(Tactics.BESTNASH);
@@ -293,7 +289,6 @@ public class Group11 extends AbstractNegotiationParty {
 			break;
 		}
 
-		// TODO fix this fallback value
 		return getActionForTactic(Tactics.ASOCIAL);
 	}
 

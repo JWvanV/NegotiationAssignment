@@ -75,7 +75,6 @@ public class OpponentUtilityModel {
 	public void addAccept(Bid acceptBid) throws InvalidBidException {
 		acceptedBids.add(acceptBid, acceptBid);
 		updateCountersFromBid(acceptBid);
-		// TODO argue if its smart or not to count an accept-bid double
 		updateCountersFromBid(acceptBid);
 	}
 
