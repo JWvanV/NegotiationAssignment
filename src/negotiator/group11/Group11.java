@@ -192,12 +192,23 @@ public class Group11 extends AbstractNegotiationParty {
 		return (round / getTime()) < numberOfRoundForOpponentModel;
 	}
 
+	private boolean first = true;
 	/**
 	 * Determine whether the current opponent model is trustworthy
 	 * based on the amount of rounds passed
 	 * @return true iff the opponent model is trusted
 	 */
 	private boolean weTrustOurOpponentModel() {
+		// Print the preference profile, for testing purposes
+		/*if(first && round > numberOfRoundForOpponentModel && round > 150) {
+			first = false;
+			for (Entry<Object, OpponentUtilityModel> e : opponents
+					.entrySet()) {
+				System.out.println("Preference profile for " + e.getKey());
+				System.out.println(e.getValue());
+			}
+		}*/
+		
 		return round > numberOfRoundForOpponentModel;
 	}
 

@@ -247,4 +247,18 @@ public class OpponentUtilityModel {
 					+ " are not supported!");
 		}
 	}
+	
+	public String toString() {
+		String result = "";
+		for(Entry<IssueDiscrete, Double> e : issueWeights.entrySet()) {
+			IssueDiscrete issue = e.getKey();
+			result += issue + " (" + ((double) Math.round(e.getValue() * 1000) / 1000) + ") : ";
+			for(Entry<ValueDiscrete, Integer> e2 : valueCounts.get(issue).entrySet()) {
+				result += "<\"" + e2.getKey() + "\", " + e2.getValue() + "> ";
+			}
+			result += "\n";
+		}
+		
+		return result;
+	}
 }
