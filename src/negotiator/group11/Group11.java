@@ -122,6 +122,7 @@ public class Group11 extends AbstractNegotiationParty {
 				|| lastBid.getMyUndiscountedUtil() > reservationUtility) {
 			return new Accept();
 		} else {
+			// Short negotiation
 			if (thereWillNeverBeATrustedOpponentModel()) {
 				if (previousBidHasBeenAcceptedEnough())
 					return getActionForTactic(Tactics.EDGEPUSHER);
@@ -139,7 +140,9 @@ public class Group11 extends AbstractNegotiationParty {
 					}
 				}
 			} else {
+				//Long negotiation
 				if (weTrustOurOpponentModel()) {
+					//Enough rounds have passed
 					sortOutcomeSpaceOnNashProduct();
 
 					// TODO do something with the aprox opponent tactics
@@ -170,6 +173,7 @@ public class Group11 extends AbstractNegotiationParty {
 					else
 						return getActionForTactic(Tactics.BESTNASH);
 				} else {
+					//Build opponent model
 					return getActionForTactic(Tactics.RANDOM);
 				}
 			}
