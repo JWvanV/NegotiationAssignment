@@ -113,7 +113,7 @@ public class Group11 extends AbstractNegotiationParty {
 		}
 
 		if (previousBidHasBeenAcceptedEnough()) {
-			reservationUtility *= 0.6;
+			reservationUtility *= 0.8;
 		}
 
 		BidDetails lastBid = allBids.getLastBidDetails();
