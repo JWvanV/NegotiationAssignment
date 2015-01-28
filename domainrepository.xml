@@ -4,17 +4,6 @@
         <agentRepItems/>
         <partyRepItems/>
         <domainRepItem>
-            <domainRepItem url="file:etc/templates/partydomain/party_domain.xml">
-                <profile url="file:etc/templates/partydomain/party1_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party2_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party3_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party4_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party5_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party6_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party7_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party8_utility.xml"/>
-                <profile url="file:etc/templates/partydomain/party9_utility.xml"/>
-            </domainRepItem>
             <domainRepItem url="file:etc/templates/ANAC2015/group1-university/University.xml">
                 <profile url="file:etc/templates/ANAC2015/group1-university/University_util1.xml"/>
                 <profile url="file:etc/templates/ANAC2015/group1-university/University_util2.xml"/>
@@ -26,16 +15,16 @@
                 <profile url="file:etc/templates/ANAC2015/group1-university/University_util8.xml"/>
                 <profile url="file:etc/templates/ANAC2015/group1-university/University_util9.xml"/>
             </domainRepItem>
-            <!--<domainRepItem url="file:etc/templates/ANAC2015/group2-dinner/Dinner.xml">-->
-                <!--<profile url="file:etc/templates/ANAC2015/group2-dinner/Dinner_util1.xml"/>-->
-                <!--<profile url="file:etc/templates/ANAC2015/group2-dinner/Dinner_util2.xml"/>-->
-                <!--<profile url="file:etc/templates/ANAC2015/group2-dinner/Dinner_util3.xml"/>-->
-            <!--</domainRepItem>-->
-            <!--<domainRepItem url="file:etc/templates/ANAC2015/group2-new_sporthal/New_sporthal.xml">-->
-                <!--<profile url="file:etc/templates/ANAC2015/group2-new_sporthal/New_sporthal_util1.xml"/>-->
-                <!--<profile url="file:etc/templates/ANAC2015/group2-new_sporthal/New_sporthal_util2.xml"/>-->
-                <!--<profile url="file:etc/templates/ANAC2015/group2-new_sporthal/New_sporthal_util3.xml"/>-->
-            <!--</domainRepItem>-->
+            <domainRepItem url="file:etc/templates/ANAC2015/group2-dinner/Dinner.xml">
+                <profile url="file:etc/templates/ANAC2015/group2-dinner/Dinner_util1.xml"/>
+                <profile url="file:etc/templates/ANAC2015/group2-dinner/Dinner_util2.xml"/>
+                <profile url="file:etc/templates/ANAC2015/group2-dinner/Dinner_util3.xml"/>
+            </domainRepItem>
+            <domainRepItem url="file:etc/templates/ANAC2015/group2-new_sporthal/New_sporthal.xml">
+                <profile url="file:etc/templates/ANAC2015/group2-new_sporthal/New_sporthal_util1.xml"/>
+                <profile url="file:etc/templates/ANAC2015/group2-new_sporthal/New_sporthal_util2.xml"/>
+                <profile url="file:etc/templates/ANAC2015/group2-new_sporthal/New_sporthal_util3.xml"/>
+            </domainRepItem>
             <domainRepItem url="file:etc/templates/ANAC2015/group2-politics/Politics.xml">
                 <profile url="file:etc/templates/ANAC2015/group2-politics/Politics_util1.xml"/>
                 <profile url="file:etc/templates/ANAC2015/group2-politics/Politics_util2.xml"/>

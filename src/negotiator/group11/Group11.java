@@ -407,7 +407,7 @@ public class Group11 extends AbstractNegotiationParty {
 					BidDetailsWithNash rbdwn) {
 				// Big value (1000000000) is because else the values would be so
 				// small that Java would throw a 'MisuseOfContractException'
-				return (int) (1000000000 * (lbdwn.getEstimatedNashValue() - rbdwn
+				return (int) (2000000000 * (lbdwn.getEstimatedNashValue() - rbdwn
 						.getEstimatedNashValue()));
 			}
 		});
