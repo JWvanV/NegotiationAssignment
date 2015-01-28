@@ -237,7 +237,7 @@ public class Group11 extends AbstractNegotiationParty {
 	 * @return
 	 */
 	private Action getActionForTactic(Tactics t) {
-		System.out.println("Round " + round + " | Tactic: " + t);
+		//System.out.println("Round " + round + " | Tactic: " + t);
 		switch (t) {
 		case RANDOM:
 			// We don't want to bid under our reservation value
