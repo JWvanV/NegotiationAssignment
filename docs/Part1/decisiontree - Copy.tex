@@ -1,0 +1,54 @@
+\begin{tikzpicture}[
+    node/.style={%
+      draw,
+      rectangle,
+    },
+  ]
+
+    \node [node] (A) {U(current bid) $>$ reservation value?};
+    \path (A) ++(-135:\nodeDist) node [node] (B) {accept};
+    \path (A) ++(-90:\nodeDist) node [node] (C) {current round $>$ 20?};
+    \path (C) ++(-135:\nodeDist*1.5) node [node] (D) {opponent strategy?};
+    \path (C) ++(-45:\nodeDist) node [node] (E) {total nr. of rounds $>$ 20?};
+    \path (D) ++(-135:\nodeDist) node [node] (F) {BESTNASH};
+    \path (D) ++(-90:\nodeDist) node [node] (G) {EDGEPUSHER};
+    \path (D) ++(-45:\nodeDist) node [node] (H) {BESTNASH};
+    \path (E) ++(-45:\nodeDist) node [node] (I) {RANDOM};
+    \path (E) ++(-90:\nodeDist) node [node] (J) {enough accepts?};
+    \path (J) ++(-135:\nodeDist) node [node] (K) {EDGEPUSHER};
+    \path (J) ++(-45:\nodeDist) node [node] (L) {what time is it?};
+    \path (L) ++(-135:\nodeDist) node [node] (M) {HARDTOGET};
+    \path (L) ++(-90:\nodeDist) node [node] (N) {NOSTALGIAN};
+    \path (L) ++(-45:\nodeDist) node [node] (O) {GIVEIN};
+
+    \draw (A) -- (B) node [left,pos=0.5] {yes}(A);
+    \draw (A) -- (C) node [right,pos=0.5] {no}(A);
+    \draw (C) -- (D) node [left,pos=0.5] {yes}(A);
+    \draw (C) -- (E) node [right,pos=0.5] {no}(A);
+    \draw (D) -- (F) node [left,pos=0.5] {unknown}(A);
+    \draw (D) -- (G) node [below,pos=0.5] {modifyPrevious}(A);
+    \draw (D) -- (H) node [right,pos=0.5] {modifySelf}(A);
+    \draw (E) -- (I) node [right,pos=0.5] {yes}(A);
+    \draw (E) -- (J) node [left,pos=0.5] {no}(A);
+    \draw (J) -- (K) node [left,pos=0.5] {yes}(A);
+    \draw (J) -- (L) node [right,pos=0.5] {no}(A);
+    \draw (L) -- (M) node [left,pos=0.5] {first quarter}(A);
+    \draw (L) -- (N) node [below,pos=0.5] {second quarter}(A);
+    \draw (L) -- (O) node [right,pos=0.5] {last half}(A);
+\end{tikzpicture}
+
+%[,rectangle, s sep=35pt,
+%  [,edge label={node[Below]{option1}}
+%    [,edge label={node[Below]{a longer text goes here}}
+%    ]
+%    [,edge label={node[Above]{text}}
+%    ]
+%  ]
+%  [,edge label={node[Above]{option2}}
+%    [,edge label={node[Below]{a longer text goes here}}
+%    ]
+%    [,edge label={node[Above]{text}}
+%    ]
+%  ]
+%]
+
