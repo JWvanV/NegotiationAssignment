@@ -1,1 +1,23 @@
 \section{Adaptations}
+Considering the test results, certain improvements should be made to the agent, to improve the results against other agents.
+
+\subsection{Parameter changes}
+Based on the first version of the agent, there are several adaptations that can be made. Simple changes are the altering of parameters, mostly numerical values, that determine when and how fast actions are taken by the agent. Examples are in the list below.
+
+\begin{itemize}
+\item The ReservationValue starts decreasing automatically after a certain amount of time. In the first version this happened at $85\%$ of time. This can be increased to be less sensitive to the opponent's preferences. It can also be decreased to be more sensitive.
+\item If the previous bid has been accepted by enough other agents, the ReservationValue is also decreased. This currently happens by a multiplication by $0.8$. Increasing this value towards $1$ will make the agent less sensitive to the opponent's preferences. Decreasing it towards $0$ will make it more tolerant.
+\item When there is no time to create a trusted opponent model, the GiveIn tactic is used. This creates a more tolerant offer each round. The amount of tolerance added each round can be adjusted.
+\item \emph{numberOfRoundsForOpponentModel}. This parameter determines the border between a short negotiation and a long negotiation. We can play around with it to see what gives the best opponent model.
+\end{itemize}
+
+
+\subsection{Strategy changes}
+Apart from the parameter changes, the bidding and accepting strategy of the agent can also be modified. 
+ 
+\begin{itemize}
+\item Introduce an ``AcceptanceValue'' that represents a value above which the agent will always accept. Currently this is partly represented by the ReservationValue, but that is not what the ReservationValue is meant for.
+\item Do not bluntly accept after $95\%$ of the time has passed when the GIVEIN strategy is used, but instead try to make a reasonable offer around the reservation value.
+\item NOSTALGIAN is always the best possible bid - maybe make it the best bid from the opponent?
+\item Make smart determination when the opponent model is good?
+\end{itemize}
