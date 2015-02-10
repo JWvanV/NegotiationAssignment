@@ -1,7 +1,13 @@
 \section{Test Description}
 
-After finishing the first version of our own negotiation agent, we were provided with the negotiation agents of other groups and their domains.
+After finishing the first version of our own negotiation agent, we were provided with the negotiation agents of other groups and their domains. We decided to do a comprehensive set of tests in the genius Tournament environment. 10 Tournaments were ran, for every opponent-profile combination of three parties per tournament, resulting in 2\textsuperscript{3} = 8 sessions per tournament. All opponents were tested in their own domain, with the following exceptions:
 
-10 tournaments, for every enemy-profilecombination, testing all combinations so 2^3 = 8 sessions per tournament. - Testing every opponent on their own domain (Exception: not 9, and 10 tested on 12-domain, also ignoring sessions n/n/n and 11/11/11 in testing). Also, averaging over all sessions and domain types.
+\begin{enumerate}
+	\item Opponent 9 was not tested, because we were unable to get the agent running. 
+	\item Opponent 10 was tested on the domain of Opponent 12, because the domain of Opponent 10 was missing.
+\end{enumerate}
 
-Also note that averages are only taken when agreements are reached. Meaning that there is less data for opponent 2, 6, 7 and 10. This was for the variables: Distance to Pareto, Distance to Nash, Social Welfare, And the utlities.
+All test results were averaged over all sessions and domain types, ignoring the sessions with the following agent composition: n/n/n and 11/11/11.
+We were unable to determine which domain, provided by Opponent 2, was the cooperative, moderate and competitive domain, so we made the alphabetical assumption of Dinner, Sporthal and Politics respectively.\\
+
+We also note that sessions were only counted when an agreement was reached. This resulted in less data for Opponent 2, 6, 7 and 10, specifically for the variables: Distance to Pareto, Distance to Nash, Social Welfare, And the utlities.
