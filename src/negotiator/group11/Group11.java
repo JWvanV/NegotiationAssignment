@@ -179,7 +179,7 @@ public class Group11 extends AbstractNegotiationParty {
 	/**
 	 * The minimum required rounds needed to make an opponent model
 	 */
-	private static final int numberOfRoundForOpponentModel = 10;
+	private static final int numberOfRoundForOpponentModel = 20;
 
 	/**
 	 * Determine whether we will ever have an opponent model significant enough
@@ -189,8 +189,6 @@ public class Group11 extends AbstractNegotiationParty {
 	private boolean thereWillNeverBeATrustedOpponentModel() {
 		return (round / getTime()) < numberOfRoundForOpponentModel;
 	}
-
-	private boolean first = true;
 
 	/**
 	 * Determine whether the current opponent model is trustworthy based on the
