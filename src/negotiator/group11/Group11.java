@@ -101,7 +101,7 @@ public class Group11 extends AbstractNegotiationParty {
 			return getActionForTactic(Tactics.ASOCIAL);
 
 		// Give in to our reservation value in the endgame;
-		double timeTostartGiveInReservationValue = 0.85;
+		double timeTostartGiveInReservationValue = 0.9;
 		if (currentTime > timeTostartGiveInReservationValue) {
 			double giveInProgress = (currentTime - timeTostartGiveInReservationValue)
 					/ (1 - timeTostartGiveInReservationValue);
@@ -111,7 +111,7 @@ public class Group11 extends AbstractNegotiationParty {
 		}
 
 		if (previousBidHasBeenAcceptedEnough()) {
-			reservationUtility *= 0.8;
+			reservationUtility *= 0.9;
 		}
 
 		BidDetails lastBid = allBids.getLastBidDetails();
@@ -179,7 +179,7 @@ public class Group11 extends AbstractNegotiationParty {
 	/**
 	 * The minimum required rounds needed to make an opponent model
 	 */
-	private static final int numberOfRoundForOpponentModel = 20;
+	private static final int numberOfRoundForOpponentModel = 50;
 
 	/**
 	 * Determine whether we will ever have an opponent model significant enough
@@ -282,7 +282,7 @@ public class Group11 extends AbstractNegotiationParty {
 				// (-1.9531 * Math.pow(currentTime, 2))
 				// + (2.2251 * currentTime) + 0.3626);
 				// discount = 1.3 - (0.6 * currentTime);
-				return getOfferFromPreviousUtil(reservationUtility);
+				return getOfferFromPreviousUtil(0.975);
 			}
 		case THEFINGER:
 			return new EndNegotiation();
