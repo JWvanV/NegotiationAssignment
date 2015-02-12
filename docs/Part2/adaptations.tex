@@ -13,11 +13,10 @@ Based on the first version of the agent, there are several adaptations that can 
 
 
 \subsection{Strategy changes}
-Apart from the parameter changes, the bidding and accepting strategy of the agent can also be modified. 
+Apart from the parameter changes, the bidding and accepting strategy of the agent can also be modified. Below is a list of some of these possible changes. We have however decided, after testing the agent with the parameter changes, not to implement these, as the changes were already satisfying.
  
 \begin{itemize}
 \item Introduce an ``AcceptanceValue'' that represents a value above which the agent will always accept. Currently this is partly represented by the ReservationValue, but that is not what the ReservationValue is meant for.
-\item Do not bluntly accept after $95\%$ of the time has passed when the GIVEIN strategy is used, but instead try to make a reasonable offer around the reservation value.
-\item NOSTALGIAN is always the best possible bid - maybe make it the best bid from the opponent?
-\item Make smart determination when the opponent model is good?
+\item Do not bluntly accept after $95\%$ of the time has passed when the GIVEIN strategy is used, but instead try to make a reasonable offer around the reservation value
+\item A smart determination can be made about when the opponent model is good enough, instead of a fixed limit.
 \end{itemize}
