@@ -19,6 +19,16 @@ Apart from the parameter changes, the bidding and accepting strategy of the agen
  
 \begin{itemize}
 \item Introduce an ``AcceptanceValue'' that represents a value above which the agent will always accept. Currently this is partly represented by the ReservationValue, but that is not what the ReservationValue is meant for.
-\item Do not bluntly accept after $95\%$ of the time has passed when the GIVEIN strategy is used, but instead try to make a reasonable offer around the reservation value
+\item Do not bluntly accept after $95\%$ of the time has passed when the GIVEIN strategy is used, but instead try to make a reasonable offer around the reservation value.
 \item A smart determination can be made about when the opponent model is good enough, instead of a fixed limit.
+\end{itemize}
+
+\subsection{Actual changes}
+The changes that were eventually implemented in the new version of the agent are only parameter changes. These values make the agent less sensitive to the opponent's preferences, so less tolerant.
+
+\begin{itemize}
+\item Changed the time after which the ReservationValue starts decreasing automatically from $85\%$ to $95\%$.
+\item Changed the multiplier by which the ReservationValue is multiplied if the previous bid has been accepted by enough other agents from $0.8$ to $0.9$.
+\item In the GIVEIN tactic, the amount of giving in is changed from the ReservationValue (ranging from $0.95$ to $0.6$) to $0.975$.
+\item The amount of rounds needed for a trusted opponent model is changed from 20 to 50, so more negotiations are considered short, as this strategy slightly outperforms the strategy of long negotiations.
 \end{itemize}
